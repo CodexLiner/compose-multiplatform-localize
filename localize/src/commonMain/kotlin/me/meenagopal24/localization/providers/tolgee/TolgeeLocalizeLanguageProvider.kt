@@ -36,7 +36,7 @@ class TolgeeLocalizeLanguageProvider(val tolgeeConfig: TolgeeConfig, providerCon
      * Retrieves the list of supported languages by downloading their data from Tolgee.
      */
     override suspend fun getLanguages(): List<LocalLanguageList?> {
-        return providerConfig.supportedLanguages.map {
+        return config.supportedLanguages.map {
             LocalLanguageList(it, LocalLanguage(downloadLanguage(it)))
         }
     }
@@ -45,8 +45,7 @@ class TolgeeLocalizeLanguageProvider(val tolgeeConfig: TolgeeConfig, providerCon
      * Downloads the language data for a given code from Tolgee and returns it as a map of key-value pairs.
      */
     private suspend fun downloadLanguage(code: String): Map<String, String> {
-        val pathSegments =
-            tolgeeConfig.baseURL.plus("v2/projects/").plus(providerConfig.appName).plus("/export")
+        val pathSegments = tolgeeConfig.baseURL.plus("v2/projects/").plus(tolgeeConfig.appName).plus("/export")
         val result = HttpClient {
             install(ContentNegotiation) {
                 json(Json {
@@ -68,11 +67,11 @@ class TolgeeLocalizeLanguageProvider(val tolgeeConfig: TolgeeConfig, providerCon
         }.get(pathSegments) {
             url.parameters.apply {
                 appendAll(StringValues.build {
-                    append("appName", providerConfig.appName)
+                    append("appName", tolgeeConfig.appName)
                     append("languages", code)
                     append("zip", "false")
-                    append("projectId", providerConfig.projectId.orEmpty())
-                    append("format", providerConfig.fileType.type)
+                    append("projectId", tolgeeConfig.projectId.orEmpty())
+                    append("format", tolgeeConfig.fileType.type)
                 })
             }
         }

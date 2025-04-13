@@ -22,7 +22,7 @@ object Localize {
     fun init(languageProvider: LocalizeLanguageProvider) {
         this.languageProvider = languageProvider
         val defaultLanguage = settings.get<String>(SELECTED_LANGUAGE_CODE)
-            ?: languageProvider.providerConfig.defaultLanguage
+            ?: languageProvider.config.defaultLanguage
         setCurrentLanguage(defaultLanguage)
         initPlatform()
     }

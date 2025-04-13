@@ -33,7 +33,7 @@ class CustomLocalizeLanguageProvider(val baseURL: String, providerConfig: Provid
      * Retrieves the list of supported languages by downloading the corresponding language data for each.
      */
     override suspend fun getLanguages(): List<LocalLanguageList> {
-        return providerConfig.supportedLanguages.map {
+        return config.supportedLanguages.map {
             LocalLanguageList(it, downloadLanguage(it))
         }
     }
