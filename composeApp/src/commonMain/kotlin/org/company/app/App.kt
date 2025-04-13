@@ -45,7 +45,6 @@ import org.company.app.ui.navigation.Screens
 
 @Composable
 internal fun App() = AppTheme {
-    rememberNavController()
     key(Unit) {
         val providerConfig = ProviderConfig.Builder(
             appName = "5",

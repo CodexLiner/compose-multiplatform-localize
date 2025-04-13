@@ -57,6 +57,7 @@ kotlin {
         }
 
         androidMain.dependencies {
+            implementation(libs.androidx.ui)
             implementation(libs.androidx.startup.runtime)
             implementation(compose.uiTooling)
             implementation(libs.androidx.activityCompose)

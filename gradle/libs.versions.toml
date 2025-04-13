@@ -16,10 +16,12 @@ kotlinx-datetime = "0.6.1"
 multiplatformSettings = "1.0.0"
 serialization = "0.90.3"
 startupRuntime = "1.2.0"
+ui = "1.7.8"
 
 [libraries]
 
 androidx-activityCompose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
+androidx-ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
 androidx-uitest-testManifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "androidx-uiTest" }
 androidx-uitest-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "androidx-uiTest" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
