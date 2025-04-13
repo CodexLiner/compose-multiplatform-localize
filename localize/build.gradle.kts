@@ -72,7 +72,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.paragon.localization"
+    namespace = "com.meenagopal24.localization"
     compileSdk = 35
     defaultConfig {
         minSdk = 21
