@@ -1,0 +1,12 @@
+<resources>
+    <string name="cyclone">Cyclone</string>
+    <string name="open_github">Open github</string>
+    <string name="run">Run</string>
+    <string name="stop">Stop</string>
+    <string name="theme">Theme</string>
+    <string-array name="array">
+        <item>item1</item>
+        <item>item2</item>
+        <item>item3</item>
+    </string-array>
+</resources>
