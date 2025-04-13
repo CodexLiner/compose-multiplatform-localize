@@ -35,17 +35,6 @@ import org.company.app.ui.components.AppContainer
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
-    key(Unit) {
-        val providerConfig = ProviderConfig.Builder(
-            appName = "5",
-            defaultLanguage = "hi",
-            supportedLanguages = listOf("en", "hi", "ar", "fr", "uk"),
-            baseURL = "https://meenagopal24.me/resources/",
-            apiKey = "tgpak_gvpwwzbxnj2xa5jqgnxts4dlonzte33lmjuda2bxnbqw4",
-        ).build()
-        Localize.init(TolgeeLocalLanguageProvider(providerConfig))
-    }
-
     AppContainer {
         var downloaded by remember { mutableStateOf(false) }
         var selectedLanguage by remember { mutableStateOf<String?>(null) }
@@ -61,7 +50,6 @@ fun LoginScreen(navController: NavHostController) {
             selectedLanguage?.let {
                 Localize.setCurrentLanguage(selectedLanguage.orEmpty())
                 Logger.d("selectedLanguage ${selectedLanguage.toString()} current is   ${Localize.getCurrentLanguage()}")
-//                forceRenderTrigger.value++
             }
         }
 
@@ -73,7 +61,6 @@ fun LoginScreen(navController: NavHostController) {
             Button(onClick = {
                 scope.launch {
                     navController.navigateUp()
-//                    Localize.forceUpdateLanguages()
                 }
             }) {
                 Text(if (downloaded) "Downloaded" else "Download Languages")
