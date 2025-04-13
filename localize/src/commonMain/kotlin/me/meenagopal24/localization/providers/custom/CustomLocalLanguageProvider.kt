@@ -10,10 +10,10 @@ import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import com.paragon.localization.models.LocalLanguage
-import com.paragon.localization.models.LocalLanguageList
-import com.paragon.localization.configuration.ProviderConfig
-import com.paragon.localization.data.repository.LocalLanguageProviderImpl
+import me.meenagopal24.localization.models.LocalLanguage
+import me.meenagopal24.localization.models.LocalLanguageList
+import me.meenagopal24.localization.configuration.ProviderConfig
+import me.meenagopal24.localization.data.repository.LocalLanguageProviderImpl
 import io.ktor.http.isSuccess
 
 /**

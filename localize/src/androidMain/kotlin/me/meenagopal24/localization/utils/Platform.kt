@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import androidx.startup.Initializer
-import com.paragon.localization.context.ActivityLifeCycleCallbacks
+import me.meenagopal24.localization.context.ActivityLifeCycleCallbacks
 
 /**
  * A singleton object that holds a reference to the `Context` for platform-specific initialization.

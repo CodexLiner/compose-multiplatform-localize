@@ -1,10 +1,10 @@
 package me.meenagopal24.localization.data.repository
 
-import com.paragon.localization.configuration.ProviderConfig
-import com.paragon.localization.constants.SELECTED_LANGUAGE_CODE
-import com.paragon.localization.constants.SELECTED_LANGUAGE_MAP
-import com.paragon.localization.local.Localize.settings
-import com.paragon.localization.models.LocalLanguage
+import me.meenagopal24.localization.configuration.ProviderConfig
+import me.meenagopal24.localization.constants.SELECTED_LANGUAGE_CODE
+import me.meenagopal24.localization.constants.SELECTED_LANGUAGE_MAP
+import me.meenagopal24.localization.local.Localize.settings
+import me.meenagopal24.localization.models.LocalLanguage
 import com.russhwolf.settings.get
 import com.russhwolf.settings.set
 import kotlinx.coroutines.CoroutineScope

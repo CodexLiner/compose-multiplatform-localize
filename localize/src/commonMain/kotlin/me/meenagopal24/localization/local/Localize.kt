@@ -1,10 +1,10 @@
 package me.meenagopal24.localization.local
 
-import com.paragon.localization.constants.SELECTED_LANGUAGE_CODE
-import com.paragon.localization.data.repository.LocalLanguageProvider
-import com.paragon.localization.data.repository.LocalLanguageProviderImpl
-import com.paragon.localization.exceptions.InitializationException
-import com.paragon.localization.utils.initPlatform
+import me.meenagopal24.localization.constants.SELECTED_LANGUAGE_CODE
+import me.meenagopal24.localization.data.repository.LocalLanguageProvider
+import me.meenagopal24.localization.data.repository.LocalLanguageProviderImpl
+import me.meenagopal24.localization.exceptions.InitializationException
+import me.meenagopal24.localization.utils.initPlatform
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
 

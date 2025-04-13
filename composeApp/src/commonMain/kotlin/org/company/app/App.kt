@@ -27,14 +27,15 @@ import androidx.navigation.compose.rememberNavController
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import com.paragon.localization.configuration.ProviderConfig
-import com.paragon.localization.data.repository.LocalLanguageProviderImpl
-import com.paragon.localization.local.Localize
-import com.paragon.localization.local.localStringResources
-import com.paragon.localization.providers.tolgee.TolgeeLocalLanguageProvider
+import me.meenagopal24.localization.configuration.ProviderConfig
+import me.meenagopal24.localization.data.repository.LocalLanguageProviderImpl
+import me.meenagopal24.localization.local.Localize
+import me.meenagopal24.localization.local.localStringResources
+import me.meenagopal24.localization.providers.tolgee.TolgeeLocalLanguageProvider
 import kmplocalize.composeapp.generated.resources.Res
 import kmplocalize.composeapp.generated.resources.enter_valid_name_email
 import kmplocalize.composeapp.generated.resources.kindly_proceed_to
+import me.meenagopal24.localization.providers.custom.CustomLocalLanguageProvider
 
 import org.company.app.theme.AppTheme
 import org.company.app.theme.ScrimLight
@@ -54,7 +55,7 @@ internal fun App() = AppTheme {
             apiKey = "tgpak_gvpwwzbxnj2xa5jqgnxts4dlonzte33lmjuda2bxnbqw4",
         ).build()
 
-        Localize.init(TolgeeLocalLanguageProvider(providerConfig))
+        Localize.init(CustomLocalLanguageProvider(providerConfig))
     }
 
    Box(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {

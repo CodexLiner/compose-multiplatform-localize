@@ -2,7 +2,7 @@ package me.meenagopal24.localization.local
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import com.paragon.localization.utils.replaceWithArgs
+import me.meenagopal24.localization.utils.replaceWithArgs
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 

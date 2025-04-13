@@ -1,8 +1,8 @@
 package me.meenagopal24.localization.context
 
 import android.content.res.Resources
-import com.paragon.localization.local.getLocalString
-import com.paragon.localization.local.getLocalStringArray
+import me.meenagopal24.localization.local.getLocalString
+import me.meenagopal24.localization.local.getLocalStringArray
 
 /**
  * Custom `Resources` class that overrides various methods to return localized string resources.

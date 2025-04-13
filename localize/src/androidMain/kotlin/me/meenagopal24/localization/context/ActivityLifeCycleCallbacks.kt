@@ -7,7 +7,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.ContextThemeWrapper
-import com.paragon.localization.local.Localize
+import me.meenagopal24.localization.local.Localize
 import java.util.Locale
 
 @SuppressLint("PrivateApi", "DiscouragedPrivateApi")

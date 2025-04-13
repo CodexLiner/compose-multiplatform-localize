@@ -1,7 +1,7 @@
 package me.meenagopal24.localization.data.repository
 
-import com.paragon.localization.models.LocalLanguage
-import com.paragon.localization.models.LocalLanguageList
+import me.meenagopal24.localization.models.LocalLanguage
+import me.meenagopal24.localization.models.LocalLanguageList
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**

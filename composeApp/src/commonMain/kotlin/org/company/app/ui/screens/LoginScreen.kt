@@ -23,10 +23,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import co.touchlab.kermit.Logger
-import com.paragon.localization.configuration.ProviderConfig
-import com.paragon.localization.local.Localize
-import com.paragon.localization.local.localStringResources
-import com.paragon.localization.providers.tolgee.TolgeeLocalLanguageProvider
+import me.meenagopal24.localization.configuration.ProviderConfig
+import me.meenagopal24.localization.local.Localize
+import me.meenagopal24.localization.local.localStringResources
+import me.meenagopal24.localization.providers.tolgee.TolgeeLocalLanguageProvider
 import kmplocalize.composeapp.generated.resources.Res
 import kmplocalize.composeapp.generated.resources.enter_valid_name_email
 import kmplocalize.composeapp.generated.resources.kindly_proceed_to

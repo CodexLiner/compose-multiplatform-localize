@@ -1,6 +1,6 @@
 package me.meenagopal24.localization.configuration
 
-import com.paragon.localization.exceptions.InvalidConfigurationException
+import me.meenagopal24.localization.exceptions.InvalidConfigurationException
 
 class ProviderConfig private constructor() {
     var apiKey: String = ""

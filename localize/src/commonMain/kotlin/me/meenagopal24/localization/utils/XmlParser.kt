@@ -1,7 +1,7 @@
 package me.meenagopal24.localization.utils
 
 import nl.adaptivity.xmlutil.serialization.XML
-import com.paragon.localization.models.Resources
+import me.meenagopal24.localization.models.Resources
 
 /**
  * Parses an XML string into a map of key-value pairs, converting text with HTML tags into CDATA sections.

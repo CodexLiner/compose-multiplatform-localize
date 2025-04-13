@@ -1,6 +1,6 @@
 package me.meenagopal24.localization.utils
 
-import com.paragon.localization.models.regex.SimpleStringFormatRegex
+import me.meenagopal24.localization.models.regex.SimpleStringFormatRegex
 
 /**
  * Replaces placeholders in the string with corresponding values from the provided list of arguments.

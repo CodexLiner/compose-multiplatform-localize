@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import com.paragon.localization.local.localStringResources
+import me.meenagopal24.localization.local.localStringResources
 import kmplocalize.composeapp.generated.resources.Res
 import kmplocalize.composeapp.generated.resources.back_to_home
 import kmplocalize.composeapp.generated.resources.kindly_proceed_to
