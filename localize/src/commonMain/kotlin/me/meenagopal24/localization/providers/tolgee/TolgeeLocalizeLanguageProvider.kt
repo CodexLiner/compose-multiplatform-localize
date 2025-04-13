@@ -16,14 +16,14 @@ import kotlinx.serialization.json.Json
 import me.meenagopal24.localization.models.LocalLanguage
 import me.meenagopal24.localization.models.LocalLanguageList
 import me.meenagopal24.localization.configuration.ProviderConfig
-import me.meenagopal24.localization.data.repository.LocalLanguageProviderImpl
+import me.meenagopal24.localization.data.repository.LocalizeLanguageProvider
 import io.ktor.http.isSuccess
 
 /**
  * A custom implementation of the language provider for fetching language data from the Tolgee API.
  */
-class TolgeeLocalLanguageProvider(providerConfig: ProviderConfig) :
-    LocalLanguageProviderImpl(providerConfig) {
+class TolgeeLocalizeLanguageProvider(val tolgeeConfig: TolgeeConfig, providerConfig: ProviderConfig) :
+    LocalizeLanguageProvider(providerConfig) {
 
     /**
      * Retrieves the language data for a specific language code from Tolgee.
@@ -46,7 +46,7 @@ class TolgeeLocalLanguageProvider(providerConfig: ProviderConfig) :
      */
     private suspend fun downloadLanguage(code: String): Map<String, String> {
         val pathSegments =
-            providerConfig.baseURL.plus("v2/projects/").plus(providerConfig.appName).plus("/export")
+            tolgeeConfig.baseURL.plus("v2/projects/").plus(providerConfig.appName).plus("/export")
         val result = HttpClient {
             install(ContentNegotiation) {
                 json(Json {
@@ -61,7 +61,7 @@ class TolgeeLocalLanguageProvider(providerConfig: ProviderConfig) :
             }
             install(DefaultRequest) {
                 headers {
-                    append("X-API-Key", providerConfig.apiKey)
+                    append("X-API-Key", tolgeeConfig.apiKey)
                     append("Accept", "application/json")
                 }
             }

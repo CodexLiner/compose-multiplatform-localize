@@ -15,8 +15,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import me.meenagopal24.localization.exceptions.InvalidConfigurationException
 
-abstract class LocalLanguageProviderImpl(val providerConfig: ProviderConfig) : LocalLanguageProvider {
+abstract class LocalizeLanguageProvider(val providerConfig: ProviderConfig) : LocalLanguageProvider {
+
+    init {
+        if (providerConfig.appName.isEmpty()) throw InvalidConfigurationException("Localize: `appName` cannot be empty")
+        if (providerConfig.supportedLanguages.isEmpty()) throw InvalidConfigurationException("Localize: `supportedLanguages` cannot be empty, at least one language must be supported")
+        if (providerConfig.defaultLanguage.isBlank()) throw InvalidConfigurationException("Localize `defaultLanguage` must be a language code.")
+    }
 
     /**
      * Holds the current localized strings for the selected language.

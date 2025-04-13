@@ -2,7 +2,7 @@ package me.meenagopal24.localization.local
 
 import me.meenagopal24.localization.constants.SELECTED_LANGUAGE_CODE
 import me.meenagopal24.localization.data.repository.LocalLanguageProvider
-import me.meenagopal24.localization.data.repository.LocalLanguageProviderImpl
+import me.meenagopal24.localization.data.repository.LocalizeLanguageProvider
 import me.meenagopal24.localization.exceptions.InitializationException
 import me.meenagopal24.localization.utils.initPlatform
 import com.russhwolf.settings.Settings
@@ -19,7 +19,7 @@ object Localize {
     /**
      * Initializes the Localize object with the given language provider and sets the current language.
      */
-    fun init(languageProvider: LocalLanguageProviderImpl) {
+    fun init(languageProvider: LocalizeLanguageProvider) {
         localLanguageProvider = languageProvider
         setCurrentLanguage(settings.get<String>(SELECTED_LANGUAGE_CODE) ?: languageProvider.providerConfig.defaultLanguage)
         initPlatform()
@@ -28,7 +28,7 @@ object Localize {
     /**
      * Returns the current language provider.
      */
-    fun localLanguageProvider(): LocalLanguageProvider? = localLanguageProvider
+    internal fun localLanguageProvider(): LocalLanguageProvider? = localLanguageProvider
 
     /**
      * Sets the current language by updating the language provider.

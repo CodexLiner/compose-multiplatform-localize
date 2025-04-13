@@ -13,14 +13,14 @@ import kotlinx.serialization.json.Json
 import me.meenagopal24.localization.models.LocalLanguage
 import me.meenagopal24.localization.models.LocalLanguageList
 import me.meenagopal24.localization.configuration.ProviderConfig
-import me.meenagopal24.localization.data.repository.LocalLanguageProviderImpl
+import me.meenagopal24.localization.data.repository.LocalizeLanguageProvider
 import io.ktor.http.isSuccess
 
 /**
  * A custom implementation of the language provider that fetches language data from an external source.
  */
-class CustomLocalLanguageProvider(providerConfig: ProviderConfig) :
-    LocalLanguageProviderImpl(providerConfig) {
+class CustomLocalizeLanguageProvider(val baseURL: String, providerConfig: ProviderConfig) :
+    LocalizeLanguageProvider(providerConfig) {
 
     /**
      * Retrieves the language data for a given language code by downloading the corresponding JSON.
@@ -54,9 +54,7 @@ class CustomLocalLanguageProvider(providerConfig: ProviderConfig) :
                     ignoreUnknownKeys = true
                 })
             }
-        }.get(
-            providerConfig.baseURL.orEmpty().plus("${code}.json")
-        )
+        }.get(baseURL.plus("${code}.json"))
         return if (response.status.isSuccess()) LocalLanguage(response.body<Map<String, String>>())
         else LocalLanguage(mapOf())
     }
