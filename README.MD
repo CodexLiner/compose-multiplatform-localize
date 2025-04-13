@@ -1,8 +1,6 @@
----
-
 # Localization Setup Guide
 
-This document provides a complete guide to setting up dynamic localization using the `meenagopal24.localization` library for both Jetpack Compose and View-based Android applications.
+This document provides a complete guide to setting up dynamic localization using the `meenagopal24.localization` library for Kotlin Multiplatform (KMP), Jetpack Compose, and View-based Android applications.
 
 ---
 
@@ -20,9 +18,9 @@ dependencies {
 
 ## 🔧 Initialization
 
-### ✅ Common Initialization (Compose & View-based)
+### ✅ Common Initialization (Compose, View-based, and KMP)
 
-The initialization logic is identical for both Jetpack Compose and traditional View-based projects. You must call:
+The initialization logic is identical for Kotlin Multiplatform (KMP), Jetpack Compose, and traditional View-based projects. You must call:
 
 ```kotlin
 Localize.init(MyOwnLanguageProvider(providerConfig))
@@ -32,10 +30,24 @@ Localize.init(MyOwnLanguageProvider(providerConfig))
 |---------------------|-------------------------------------------------|
 | Jetpack Compose     | Inside a top-level `@Composable`, e.g., `App()` |
 | View-based (XML)    | Inside `onCreate()` of `Application` class      |
+| Kotlin Multiplatform | Inside a shared module or platform-specific code |
 
 ---
 
 ## 🔌 Custom Language Provider
+
+You can create a custom provider by extending `LocalizeLanguageProvider`. However, by default, Tolgee is provided as the language provider, which can be easily used for managing your language resources.
+
+### Using Tolgee (Default Language Provider)
+
+If you're not implementing a custom provider and want to use Tolgee, you can initialize it directly. Example:
+
+```kotlin
+val tolgeeLanguageProvider = TolgeeLanguageProvider("your-api-key", "en")
+Localize.init(tolgeeLanguageProvider)
+```
+
+### Custom Language Provider Example
 
 Create a custom provider by extending `LocalizeLanguageProvider`:
 
@@ -115,7 +127,7 @@ class MyApp : Application() {
 To access localized strings in Jetpack Compose, use the `localStringResources` function and pass the string resource ID along with any dynamic values (if needed):
 
 ```kotlin
-Text(localStringResources(R.string.enter_valid_name_email, "ndsdn"))
+Text(localStringResources(R.string.enter_valid_name_email))
 ```
 
 - **Explanation**: This example demonstrates how to access a string resource in Jetpack Compose using `localStringResources`. The first argument is the string resource ID (`R.string.enter_valid_name_email`), and the second argument is a dynamic value (`"ndsdn"`) to be injected into the localized string.
@@ -123,7 +135,7 @@ Text(localStringResources(R.string.enter_valid_name_email, "ndsdn"))
 ### In View-based UI:
 
 ```kotlin
-textView.text = Localize.getString("home.title")
+textView.text = getString(R.string.title)
 ```
 
 ---
@@ -180,6 +192,7 @@ Forces a refresh of the list of available languages.
 ## 📝 Notes
 - Always initialize `Localize` before accessing any localized content.
 - Language changes will recompose your UI automatically in Compose. For View-based projects, you may need to refresh views manually.
+- The library is compatible with Kotlin Multiplatform (KMP), making it suitable for sharing localization logic across Android, iOS, and other platforms.
 
 ---
 
@@ -188,3 +201,5 @@ Forces a refresh of the list of available languages.
 This library is provided by [meenagopal24](https://github.com/meenagopal24/localization). See the repository for license and contributions.
 
 ---
+
+This document now provides a complete overview of how to set up and use the `meenagopal24.localization` library in your Kotlin Multiplatform (KMP), Jetpack Compose, and View-based Android projects, with support for Tolgee as a language provider. Let me know if you need further modifications or details!
