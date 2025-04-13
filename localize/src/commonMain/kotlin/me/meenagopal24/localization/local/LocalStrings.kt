@@ -16,8 +16,8 @@ import org.jetbrains.compose.resources.stringResource
  */
 @Composable
 internal fun getOverriddenString(key: String, fallback: @Composable () -> String): String {
-    val localStrings = Localize.getProvider().localStringsState.collectAsState()
-    return localStrings.value.getOrElse(key) { fallback() }
+    val overrides = Localize.getProvider().localStringsState.collectAsState()
+    return overrides.value[key] ?: fallback()
 }
 
 /**
@@ -29,9 +29,9 @@ internal fun getOverriddenString(key: String, fallback: @Composable () -> String
  * @return The final formatted localized string.
  */
 @Composable
-private fun getLocalizedString(localKey: StringResource, formatArgs: Array<out Any>? = null): String {
-    val base = getOverriddenString(localKey.key) { stringResource(localKey) }
-    return if (!formatArgs.isNullOrEmpty()) base.replaceWithArgs(formatArgs.map { it.toString() }) else base
+private fun getLocalizedString(resource: StringResource, args: Array<out Any>? = null): String {
+    val base = getOverriddenString(resource.key) { stringResource(resource) }
+    return args?.takeIf { it.isNotEmpty() }?.let { base.replaceWithArgs(it.map(Any::toString)) } ?: base
 }
 
 /**
