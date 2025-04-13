@@ -13,51 +13,42 @@ import com.russhwolf.settings.get
  */
 object Localize {
 
-    internal val settings = Settings()
-    private var localLanguageProvider: LocalLanguageProvider? = null
+    internal val settings: Settings = Settings()
+    private var languageProvider: LocalLanguageProvider? = null
 
     /**
      * Initializes the Localize object with the given language provider and sets the current language.
      */
     fun init(languageProvider: LocalizeLanguageProvider) {
-        localLanguageProvider = languageProvider
-        setCurrentLanguage(settings.get<String>(SELECTED_LANGUAGE_CODE) ?: languageProvider.providerConfig.defaultLanguage)
+        this.languageProvider = languageProvider
+        val defaultLanguage = settings.get<String>(SELECTED_LANGUAGE_CODE)
+            ?: languageProvider.providerConfig.defaultLanguage
+        setCurrentLanguage(defaultLanguage)
         initPlatform()
     }
 
     /**
      * Returns the current language provider.
      */
-    internal fun localLanguageProvider(): LocalLanguageProvider? = localLanguageProvider
+    internal fun getProvider(): LocalLanguageProvider = languageProvider ?: throw InitializationException()
 
     /**
      * Sets the current language by updating the language provider.
      */
     fun setCurrentLanguage(code: String) {
-        isConfigured()
-        localLanguageProvider?.setCurrentLanguage(code)
+        getProvider().setCurrentLanguage(code)
     }
 
     /**
      * Retrieves the current language from the language provider.
      */
-    fun getCurrentLanguage(): String? {
-        isConfigured()
-        return localLanguageProvider?.getCurrentLanguage()
-    }
+    fun getCurrentLanguage(): String =
+        getProvider().getCurrentLanguage()
 
     /**
      * Forces an update of the languages in the language provider.
      */
     fun forceUpdateLanguages() {
-        isConfigured()
-        localLanguageProvider?.forceUpdateLanguages()
-    }
-
-    /**
-     * Ensures that the local language provider is properly configured before performing any actions.
-     */
-    private fun isConfigured() {
-        if (localLanguageProvider == null) throw InitializationException()
+        getProvider().forceUpdateLanguages()
     }
 }

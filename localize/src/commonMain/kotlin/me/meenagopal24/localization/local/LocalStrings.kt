@@ -16,8 +16,8 @@ import org.jetbrains.compose.resources.stringResource
  */
 @Composable
 internal fun getOverriddenString(key: String, fallback: @Composable () -> String): String {
-    val localStrings = Localize.localLanguageProvider()?.localStringsState?.collectAsState()
-    return localStrings?.value?.getOrElse(key) { fallback() }.orEmpty()
+    val localStrings = Localize.getProvider().localStringsState.collectAsState()
+    return localStrings.value.getOrElse(key) { fallback() }
 }
 
 /**
@@ -92,7 +92,7 @@ fun localStringResources(localKey: StringResource, vararg formatArgs: Any): Stri
  * @return The localized string, or `null` if not found.
  */
 internal fun getLocalString(key: String): String? =
-    Localize.localLanguageProvider()?.localStringsState?.value?.getOrElse(key) { null }
+    Localize.getProvider().localStringsState.value.getOrElse(key) { null }
 
 /**
  * Retrieves a localized string array by its resource entry name.
