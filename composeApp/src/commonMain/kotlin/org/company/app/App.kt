@@ -18,22 +18,12 @@ import org.company.app.theme.AppTheme
 import org.company.app.ui.navigation.NavigationHost
 import org.company.app.ui.navigation.Screens
 
-class MyOwnLanguageProvider(providerConfig: ProviderConfig) : LocalizeLanguageProvider(providerConfig) {
-    override suspend fun getLanguage(code: String): LocalLanguage? {
-        // your logic to download specific language
-    }
-
-    override suspend fun getLanguages(): List<LocalLanguageList?> {
-        // your logic to download multiple languages
-    }
-
-}
 
 @Composable
 internal fun App() = AppTheme {
     key(Unit) {
-        val providerConfig = ProviderConfig(appName = "5", defaultLanguage = "hi", supportedLanguages = listOf("en", "hi", "ar", "fr", "uk"))
-        Localize.init(MyOwnLanguageProvider(providerConfig = providerConfig))
+        val providerConfig = ProviderConfig(defaultLanguage = "hi", supportedLanguages = listOf("en", "hi", "ar", "fr", "uk"))
+        Localize.init(CustomLocalizeLanguageProvider(baseURL = "https://meenagopal24.me/resources/", providerConfig = providerConfig))
     }
 
    Box(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
