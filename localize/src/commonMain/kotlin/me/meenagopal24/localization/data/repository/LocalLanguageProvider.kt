@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 /**
  * Interface defining methods for managing and fetching local language configurations.
  */
-internal interface LocalLanguageProvider {
+interface LocalLanguageProvider {
 
     /**
      * Fetches a specific language by its code.
