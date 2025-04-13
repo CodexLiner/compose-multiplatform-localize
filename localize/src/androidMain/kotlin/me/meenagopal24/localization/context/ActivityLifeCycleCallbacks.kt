@@ -30,7 +30,7 @@ class ActivityLifeCycleCallbacks : Application.ActivityLifecycleCallbacks {
         runCatching {
             ContextThemeWrapper::class.java.getDeclaredField("mResources").apply {
                 isAccessible = true
-                set(context, (DvLocalizeCustomContextWrapper(context).resources))
+                set(context, (LocalizeCustomContextWrapper(context).resources))
             }
         }.getOrElse { it.printStackTrace() }
     }

@@ -10,7 +10,7 @@ import me.meenagopal24.localization.local.getLocalStringArray
  *
  * @param resources The base `Resources` object to be wrapped and extended with custom functionality.
  */
-class DvResources(resources: Resources) :
+class LocalizeResources(resources: Resources) :
     Resources(resources.assets, resources.displayMetrics, resources.configuration) {
 
     /**
