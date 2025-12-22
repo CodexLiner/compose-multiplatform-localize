@@ -12,7 +12,7 @@ import java.util.Locale
 
 @SuppressLint("PrivateApi", "DiscouragedPrivateApi")
 class ActivityLifeCycleCallbacks : Application.ActivityLifecycleCallbacks {
-     override fun onActivityStarted(activity: Activity) = Unit
+    override fun onActivityStarted(activity: Activity) = Unit
     override fun onActivityResumed(activity: Activity) = Unit
     override fun onActivityPaused(activity: Activity) = Unit
     override fun onActivityStopped(activity: Activity) = Unit
@@ -20,7 +20,7 @@ class ActivityLifeCycleCallbacks : Application.ActivityLifecycleCallbacks {
     override fun onActivityDestroyed(activity: Activity) = Unit
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         mutateStringResources(activity)
-        activity.mutateLocal(Localize.getCurrentLanguage() ?: Locale.getDefault().language)
+        activity.mutateLocal(Localize.getCurrentLanguage().ifBlank { Locale.getDefault().language })
     }
 
     /**

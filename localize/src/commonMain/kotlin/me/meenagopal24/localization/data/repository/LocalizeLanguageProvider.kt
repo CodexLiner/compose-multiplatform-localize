@@ -16,6 +16,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import me.meenagopal24.localization.exceptions.InvalidConfigurationException
+import me.meenagopal24.localization.models.LocalLanguageList
 
 /**
  * Abstract base class for providing localized language data.
@@ -36,69 +37,71 @@ abstract class LocalizeLanguageProvider(val config: ProviderConfig) : LocalLangu
     /**
      * Holds the current localized strings for the selected language.
      */
-    override var localStringsState = MutableStateFlow<Map<String, String>>(emptyMap())
+    override var localStringsState: MutableStateFlow<Map<String, String>> =
+        MutableStateFlow(mapOf())
 
     /**
      * Retrieves the current language code from local storage.
      */
-    override fun getCurrentLanguage(): String = settings.get<String>(SELECTED_LANGUAGE_CODE).orEmpty()
+    override fun getCurrentLanguage(): String {
+        return settings.get<String>(SELECTED_LANGUAGE_CODE).orEmpty()
+    }
 
     /**
      * Sets the current language and updates the local language strings in storage.
-     *
-     * @param code The language code to set.
      */
     override fun setCurrentLanguage(code: String) {
         runBlocking {
-            val languageStrings = getLanguageFromLocalStorage(code) ?: getLanguage(code)?.languages
-            if (!languageStrings.isNullOrEmpty()) {
-                settings[SELECTED_LANGUAGE_CODE] = code
-                saveLanguageToLocalStorage(code, languageStrings)
-                localStringsState.value = languageStrings
+            val strings = getLanguageFromLocalStorage(code)?.ifEmpty { getLanguage(code)?.languages }
+            strings?.let {
+                if (strings.isNotEmpty()) {
+                    settings[SELECTED_LANGUAGE_CODE] = code
+                    saveLanguageToLocalStorage(code, strings)
+                    localStringsState.value = strings
+                }
             }
         }
     }
 
     /**
      * Forces a refresh of all available languages and updates local storage.
-     * This is useful when manually syncing the latest translations.
      */
     override fun forceUpdateLanguages() {
         CoroutineScope(Dispatchers.IO).launch {
-            val currentLang = getCurrentLanguage()
             val allLanguages = getLanguages().filterNotNull()
+            val currentLanguage = getCurrentLanguage()
 
-            allLanguages.forEach { (name, lang) ->
-                if (lang.languages.isNotEmpty()) {
-                    saveLanguageToLocalStorage(name + SELECTED_LANGUAGE_MAP, lang.languages)
-                }
+            val languageMap = allLanguages.associateBy { it.name }
+
+            val supportedLanguageList = config.supportedLanguages.map { name ->
+                languageMap[name] ?: LocalLanguageList(
+                    name = name, language = LocalLanguage(emptyMap())
+                )
             }
-
-            val selectedStrings = allLanguages.find { it.name == currentLang }?.language?.languages
-            selectedStrings?.let {
+            supportedLanguageList.forEach { (name, language) ->
+                saveLanguageToLocalStorage(
+                    name, language.languages
+                )
+            }
+            languageMap[currentLanguage]?.language?.languages?.let {
                 localStringsState.value = it
             }
         }
     }
 
+
     /**
      * Fetches the language strings for a given language code from local storage.
-     *
-     * @param code The language code.
-     * @return A map of localized strings, or `null` if not found.
      */
     private fun getLanguageFromLocalStorage(code: String): Map<String, String>? {
-        val stored = settings.get<String>(code + SELECTED_LANGUAGE_MAP)
-        return stored?.let { Json.decodeFromString<LocalLanguage>(it).languages }
+        return settings.get<String>(code.plus(SELECTED_LANGUAGE_MAP))
+            ?.let { Json.decodeFromString<LocalLanguage>(it).languages }
     }
 
     /**
      * Saves the language strings for a given language code to local storage.
-     *
-     * @param code The language code.
-     * @param strings The localized strings to store.
      */
     private fun saveLanguageToLocalStorage(code: String, strings: Map<String, String>) {
-        settings[code + SELECTED_LANGUAGE_MAP] = Json.encodeToString(LocalLanguage(strings))
+        settings[code.plus(SELECTED_LANGUAGE_MAP)] = Json.encodeToString(LocalLanguage(strings))
     }
 }

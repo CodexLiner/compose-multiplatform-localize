@@ -31,7 +31,8 @@ internal fun getOverriddenString(key: String, fallback: @Composable () -> String
 @Composable
 private fun getLocalizedString(resource: StringResource, args: Array<out Any>? = null): String {
     val base = getOverriddenString(resource.key) { stringResource(resource) }
-    return args?.takeIf { it.isNotEmpty() }?.let { base.replaceWithArgs(it.map(Any::toString)) } ?: base
+    return args?.takeIf { it.isNotEmpty() }?.let { base.replaceWithArgs(it.map(Any::toString)) }
+        ?: base
 }
 
 /**
@@ -62,7 +63,8 @@ fun localStringResources(id: Int) = getLocalizedString(id)
  * @return The formatted localized string.
  */
 @Composable
-fun localStringResources(id: Int, vararg formatArgs: Any): String = getLocalizedString(id).replaceWithArgs(formatArgs.map { it.toString() })
+fun localStringResources(id: Int, vararg formatArgs: Any): String =
+    getLocalizedString(id).replaceWithArgs(formatArgs.map { it.toString() })
 
 /**
  * Returns a localized string using a [StringResource] key.

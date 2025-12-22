@@ -18,6 +18,7 @@ import me.meenagopal24.localization.models.LocalLanguageList
 import me.meenagopal24.localization.configuration.ProviderConfig
 import me.meenagopal24.localization.data.repository.LocalizeLanguageProvider
 import io.ktor.http.isSuccess
+import me.meenagopal24.localization.utils.parseXmlString
 
 /**
  * A custom implementation of the language provider for fetching language data from the Tolgee API.
@@ -76,6 +77,6 @@ class TolgeeLocalizeLanguageProvider(val tolgeeConfig: TolgeeConfig, providerCon
             }
         }
 
-        return if (result.status.isSuccess()) me.meenagopal24.localization.utils.parseXmlString(result.body<String>()) else mapOf()
+        return if (result.status.isSuccess()) parseXmlString(result.body<String>()) else mapOf()
     }
 }

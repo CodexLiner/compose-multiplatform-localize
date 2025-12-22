@@ -21,8 +21,8 @@ object Localize {
      */
     fun init(languageProvider: LocalizeLanguageProvider) {
         this.languageProvider = languageProvider
-        val defaultLanguage = settings.get<String>(SELECTED_LANGUAGE_CODE)
-            ?: languageProvider.config.defaultLanguage
+        val defaultLanguage =
+            settings.get<String>(SELECTED_LANGUAGE_CODE) ?: languageProvider.config.defaultLanguage
         setCurrentLanguage(defaultLanguage)
         initPlatform()
     }
@@ -30,25 +30,21 @@ object Localize {
     /**
      * Returns the current language provider.
      */
-    internal fun getProvider(): LocalLanguageProvider = languageProvider ?: throw InitializationException()
+    internal fun getProvider(): LocalLanguageProvider =
+        languageProvider ?: throw InitializationException()
 
     /**
      * Sets the current language by updating the language provider.
      */
-    fun setCurrentLanguage(code: String) {
-        getProvider().setCurrentLanguage(code)
-    }
+    fun setCurrentLanguage(code: String) = getProvider().setCurrentLanguage(code)
 
     /**
      * Retrieves the current language from the language provider.
      */
-    fun getCurrentLanguage(): String =
-        getProvider().getCurrentLanguage()
+    fun getCurrentLanguage(): String = getProvider().getCurrentLanguage()
 
     /**
      * Forces an update of the languages in the language provider.
      */
-    fun forceUpdateLanguages() {
-        getProvider().forceUpdateLanguages()
-    }
+    fun forceUpdateLanguages() = getProvider().forceUpdateLanguages()
 }
