@@ -3,7 +3,9 @@ package me.meenagopal24.localization.local
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import me.meenagopal24.localization.utils.replaceWithArgs
+import org.jetbrains.compose.resources.StringArrayResource
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -17,15 +19,30 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun getOverriddenString(key: String, fallback: @Composable () -> String): String {
     val overrides = Localize.getProvider().localStringsState.collectAsState()
-    return overrides.value[key] ?: fallback()
+    return overrides.value[key.substringAfter(":")] ?: fallback()
+}
+
+/**
+ * Retrieves an overridden localized string array from the local language provider using a key.
+ * Falls back to the given default string array if no override is found.
+ *
+ * @param key The array key used for localization lookup.
+ * @param fallback A fallback composable lambda that returns the default string array if no override is available.
+ * @return The localized or fallback string array.
+ */
+@Composable
+internal fun getOverriddenStringArray(key: String, fallback: @Composable () -> Array<String>): Array<String> {
+    val overrides = Localize.getProvider().localStringArraysState.collectAsState()
+    val list = overrides.value[key.substringAfter(":")]
+    return if (list.isNullOrEmpty()) fallback() else list.toTypedArray()
 }
 
 /**
  * Retrieves a localized string using [StringResource], with optional format arguments applied.
  * If a localized override exists, it is used; otherwise, it falls back to the original string resource.
  *
- * @param localKey The Compose [StringResource] key.
- * @param formatArgs Optional formatting arguments for the string.
+ * @param resource The Compose [StringResource] key.
+ * @param args Optional formatting arguments for the string.
  * @return The final formatted localized string.
  */
 @Composable
@@ -33,6 +50,20 @@ private fun getLocalizedString(resource: StringResource, args: Array<out Any>? =
     val base = getOverriddenString(resource.key) { stringResource(resource) }
     return args?.takeIf { it.isNotEmpty() }?.let { base.replaceWithArgs(it.map(Any::toString)) }
         ?: base
+}
+
+/**
+ * Retrieves a localized string array using [StringArrayResource].
+ * If a localized override exists, it is used; otherwise, it falls back to the original string array resource.
+ *
+ * @param resource The Compose [StringArrayResource] key.
+ * @return The localized string array list.
+ */
+@Composable
+private fun getLocalizedStringArray(resource: StringArrayResource): List<String> {
+    val overrides = Localize.getProvider().localStringArraysState.collectAsState()
+    val list = overrides.value[resource.key.substringAfter(":")]
+    return if (list.isNullOrEmpty()) stringArrayResource(resource) else list
 }
 
 /**
@@ -45,6 +76,17 @@ private fun getLocalizedString(resource: StringResource, args: Array<out Any>? =
  */
 @Composable
 expect fun getLocalizedString(id: Int): String
+
+/**
+ * Platform-specific expected function for retrieving a localized string array by integer resource ID.
+ *
+ * This must be implemented per platform (e.g., Android or iOS).
+ *
+ * @param id The integer resource ID.
+ * @return The localized string array.
+ */
+@Composable
+expect fun getLocalizedStringArray(id: Int): Array<String>
 
 /**
  * Returns a localized string using an integer resource ID.
@@ -88,19 +130,44 @@ fun localStringResources(localKey: StringResource, vararg formatArgs: Any): Stri
     getLocalizedString(localKey, formatArgs)
 
 /**
+ * Returns a localized string array using an integer resource ID.
+ *
+ * @param id The resource ID to fetch.
+ * @return The localized string array.
+ */
+@Composable
+fun localStringArrayResources(id: Int): Array<String> = getLocalizedStringArray(id)
+
+/**
+ * Returns a localized string array using a [StringArrayResource] key.
+ *
+ * @param localKey The Compose string array resource key.
+ * @return The localized string list.
+ */
+@Composable
+fun localStringArrayResources(localKey: StringArrayResource): List<String> =
+    getLocalizedStringArray(localKey)
+
+/**
  * Retrieves a localized string from the state provider directly using a raw string key.
  *
  * @param key The localization key to look up.
  * @return The localized string, or `null` if not found.
  */
-internal fun getLocalString(key: String): String? =
-    Localize.getProvider().localStringsState.value.getOrElse(key) { null }
+internal fun getLocalString(key: String): String? {
+    val provider = try { Localize.getProvider() } catch (e: Exception) { return null }
+    return provider.localStringsState.value[key.substringAfter(":")]
+}
 
 /**
  * Retrieves a localized string array by its resource entry name.
- * (Currently returns null – can be extended for array support.)
  *
  * @param resourceEntryName The name of the resource entry.
  * @return The localized string array, or `null` if not found or unsupported.
  */
-internal fun getLocalStringArray(resourceEntryName: String?): Array<String>? = null
+internal fun getLocalStringArray(resourceEntryName: String?): Array<String>? {
+    if (resourceEntryName == null) return null
+    val provider = try { Localize.getProvider() } catch (e: Exception) { return null }
+    val list = provider.localStringArraysState.value[resourceEntryName.substringAfter(":")]
+    return if (list.isNullOrEmpty()) null else list.toTypedArray()
+}

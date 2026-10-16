@@ -48,4 +48,10 @@ internal interface LocalLanguageProvider {
      * The key is a string identifier, and the value is its translation in the current language.
      */
     var localStringsState: MutableStateFlow<Map<String, String>>
+
+    /**
+     * A [MutableStateFlow] that holds a map of key-value pairs representing localized string arrays.
+     * The key is an array identifier, and the value is its list of translations in the current language.
+     */
+    var localStringArraysState: MutableStateFlow<Map<String, List<String>>>
 }

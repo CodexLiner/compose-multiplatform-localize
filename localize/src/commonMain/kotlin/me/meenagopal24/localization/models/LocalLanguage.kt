@@ -1,21 +1,45 @@
 package me.meenagopal24.localization.models
 
 import kotlinx.serialization.Serializable
-import nl.adaptivity.xmlutil.serialization.XmlElement
-import nl.adaptivity.xmlutil.serialization.XmlSerialName
-import nl.adaptivity.xmlutil.serialization.XmlValue
+import me.meenagopal24.localization.models.enums.FileType
+import me.meenagopal24.localization.utils.parseJsonToLocalLanguage
+import me.meenagopal24.localization.utils.parseStringsToLocalLanguage
+import me.meenagopal24.localization.utils.parseXmlToLocalLanguage
 
-@Serializable
-data class LocalLanguageList(val name: String, val language: LocalLanguage)
+@ConsistentCopyVisibility
+@Serializable(with = LocalLanguageSerializer::class)
+data class LocalLanguage internal constructor(
+    val languages: Map<String, String> = emptyMap(),
+    val stringArrays: Map<String, List<String>> = emptyMap()
+) {
+    companion object {
+        /**
+         * Creates an empty [LocalLanguage].
+         */
+        fun empty(): LocalLanguage = LocalLanguage()
 
-@Serializable
-data class LocalLanguage(val languages: Map<String, String>)
+        /**
+         * Parses a JSON string (flat or structured) into a [LocalLanguage].
+         */
+        fun fromJson(jsonString: String): LocalLanguage = parseJsonToLocalLanguage(jsonString)
 
-@Serializable
-@XmlSerialName("resources", namespace = "", prefix = "")
-data class Resources(@XmlElement(true) val string: List<StringResource>)
+        /**
+         * Parses an XML string into a [LocalLanguage].
+         */
+        fun fromXml(xmlString: String): LocalLanguage = parseXmlToLocalLanguage(xmlString)
 
-@Serializable
-@XmlSerialName("string", namespace = "", prefix = "")
-data class StringResource(@XmlValue(true) val value: String, val name: String)
+        /**
+         * Parses Apple .strings format into a [LocalLanguage].
+         */
+        fun fromStrings(content: String): LocalLanguage = parseStringsToLocalLanguage(content)
 
+        /**
+         * Parses raw content string into a [LocalLanguage] according to [FileType].
+         */
+        fun parse(content: String, fileType: FileType): LocalLanguage = when (fileType) {
+            FileType.JSON -> fromJson(content)
+            FileType.XML -> fromXml(content)
+            FileType.STRING -> fromStrings(content)
+        }
+    }
+}

@@ -41,6 +41,12 @@ abstract class LocalizeLanguageProvider(val config: ProviderConfig) : LocalLangu
         MutableStateFlow(mapOf())
 
     /**
+     * Holds the current localized string arrays for the selected language.
+     */
+    override var localStringArraysState: MutableStateFlow<Map<String, List<String>>> =
+        MutableStateFlow(mapOf())
+
+    /**
      * Retrieves the current language code from local storage.
      */
     override fun getCurrentLanguage(): String {
@@ -52,12 +58,18 @@ abstract class LocalizeLanguageProvider(val config: ProviderConfig) : LocalLangu
      */
     override fun setCurrentLanguage(code: String) {
         runBlocking {
-            val strings = getLanguageFromLocalStorage(code)?.ifEmpty { getLanguage(code)?.languages }
-            strings?.let {
-                if (strings.isNotEmpty()) {
+            val localLang = getLanguageFromLocalStorage(code)
+            val lang = if (localLang != null && (localLang.languages.isNotEmpty() || localLang.stringArrays.isNotEmpty())) {
+                localLang
+            } else {
+                getLanguage(code)
+            }
+            lang?.let {
+                if (it.languages.isNotEmpty() || it.stringArrays.isNotEmpty()) {
                     settings[SELECTED_LANGUAGE_CODE] = code
-                    saveLanguageToLocalStorage(code, strings)
-                    localStringsState.value = strings
+                    saveLanguageToLocalStorage(code, it)
+                    localStringsState.value = it.languages
+                    localStringArraysState.value = it.stringArrays
                 }
             }
         }
@@ -75,16 +87,17 @@ abstract class LocalizeLanguageProvider(val config: ProviderConfig) : LocalLangu
 
             val supportedLanguageList = config.supportedLanguages.map { name ->
                 languageMap[name] ?: LocalLanguageList(
-                    name = name, language = LocalLanguage(emptyMap())
+                    name = name, language = LocalLanguage()
                 )
             }
-            supportedLanguageList.forEach { (name, language) ->
+            supportedLanguageList.forEach { item ->
                 saveLanguageToLocalStorage(
-                    name, language.languages
+                    item.name, item.language
                 )
             }
-            languageMap[currentLanguage]?.language?.languages?.let {
-                localStringsState.value = it
+            languageMap[currentLanguage]?.language?.let {
+                localStringsState.value = it.languages
+                localStringArraysState.value = it.stringArrays
             }
         }
     }
@@ -93,15 +106,15 @@ abstract class LocalizeLanguageProvider(val config: ProviderConfig) : LocalLangu
     /**
      * Fetches the language strings for a given language code from local storage.
      */
-    private fun getLanguageFromLocalStorage(code: String): Map<String, String>? {
+    private fun getLanguageFromLocalStorage(code: String): LocalLanguage? {
         return settings.get<String>(code.plus(SELECTED_LANGUAGE_MAP))
-            ?.let { Json.decodeFromString<LocalLanguage>(it).languages }
+            ?.let { Json.decodeFromString<LocalLanguage>(it) }
     }
 
     /**
      * Saves the language strings for a given language code to local storage.
      */
-    private fun saveLanguageToLocalStorage(code: String, strings: Map<String, String>) {
-        settings[code.plus(SELECTED_LANGUAGE_MAP)] = Json.encodeToString(LocalLanguage(strings))
+    private fun saveLanguageToLocalStorage(code: String, localLanguage: LocalLanguage) {
+        settings[code.plus(SELECTED_LANGUAGE_MAP)] = Json.encodeToString(localLanguage)
     }
 }
