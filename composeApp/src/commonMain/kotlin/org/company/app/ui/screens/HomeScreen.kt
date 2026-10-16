@@ -1,6 +1,7 @@
 package org.company.app.ui.screens
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,10 +51,7 @@ fun HomeScreen(modifier: Modifier = Modifier, navController: NavController) {
         "test" to "Test"
     )
 
-    var currentLangCode by remember {
-        mutableStateOf(
-            Localize.getCurrentLanguage().ifBlank { "en" })
-    }
+    var currentLangCode by remember { mutableStateOf(Localize.getCurrentLanguage().ifBlank { "en" }) }
     val isUpdating by Localize.isUpdating.collectAsState()
 
     // Fetch string array in composable scope
@@ -70,7 +68,7 @@ fun HomeScreen(modifier: Modifier = Modifier, navController: NavController) {
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
-        AnimatedContent(
+        AnimatedVisibility(
             isUpdating
         ) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -96,7 +94,6 @@ fun HomeScreen(modifier: Modifier = Modifier, navController: NavController) {
                 }
             }
         }
-
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -206,8 +203,7 @@ fun HomeScreen(modifier: Modifier = Modifier, navController: NavController) {
                             color = MaterialTheme.colorScheme.onTertiaryContainer
                         )
                         Text(
-                            text = localStringArrayResources(Res.array.hint_list).toList()
-                                .joinToString(),
+                            text = localStringArrayResources(Res.array.hint_list).toList().joinToString(),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f)
                         )
