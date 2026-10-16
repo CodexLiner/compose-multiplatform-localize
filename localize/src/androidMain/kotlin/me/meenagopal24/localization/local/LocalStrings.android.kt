@@ -13,3 +13,13 @@ actual fun getLocalizedString(id: Int): String {
     val key = context.resources.getResourceEntryName(id)
     return getOverriddenString(key) { stringResource(id) }
 }
+
+/**
+ * Retrieves the localized string array for a given key.
+ */
+@Composable
+actual fun getLocalizedStringArray(id: Int): Array<String> {
+    val context = LocalContext.current
+    val key = context.resources.getResourceEntryName(id)
+    return getOverriddenStringArray(key) { context.resources.getStringArray(id) }
+}

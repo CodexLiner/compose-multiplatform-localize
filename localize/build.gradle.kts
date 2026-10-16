@@ -69,6 +69,10 @@ kotlin {
             implementation(libs.ktor.client.darwin)
         }
 
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
+
     }
 }
 

@@ -26,8 +26,8 @@ import co.touchlab.kermit.Logger
 import me.meenagopal24.localization.local.Localize
 import me.meenagopal24.localization.local.localStringResources
 import kmplocalize.composeapp.generated.resources.Res
-import kmplocalize.composeapp.generated.resources.enter_valid_name_email
-import kmplocalize.composeapp.generated.resources.kindly_proceed_to
+import kmplocalize.composeapp.generated.resources.ai_description
+import kmplocalize.composeapp.generated.resources.welcome_to_pilloo_ai
 import kotlinx.coroutines.launch
 import org.company.app.ui.components.AppContainer
 
@@ -37,7 +37,7 @@ fun LoginScreen(navController: NavHostController) {
         var downloaded by remember { mutableStateOf(false) }
         var selectedLanguage by remember { mutableStateOf<String?>(null) }
 
-        var localLanguage  = listOf("en" , "hi" , "ar" , "fr" , "uk")
+        val localLanguage = listOf("en", "hi", "te")
 
         val forceRenderTrigger = remember { mutableStateOf(0) }
 
@@ -69,23 +69,23 @@ fun LoginScreen(navController: NavHostController) {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
                 ) {
-                    items(languages.toList().size) { index ->
+                    items(languages.size) { index ->
                         Button(
-                            onClick = { selectedLanguage = languages.toList()[index] },
+                            onClick = { selectedLanguage = languages[index] },
                             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
                         ) {
-                            Text(languages.toList()[index])
+                            Text(languages[index])
                         }
                     }
                 }
             }
 
-            if (localLanguage?.isNotEmpty() == true) {
+            if (localLanguage.isNotEmpty()) {
                 key(forceRenderTrigger.value) {
-                    Text(localStringResources(Res.string.enter_valid_name_email , "ndsdn"))
+                    Text(localStringResources(Res.string.welcome_to_pilloo_ai))
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = localStringResources(Res.string.kindly_proceed_to , "hello"),
+                        text = localStringResources(Res.string.ai_description),
                         style = MaterialTheme.typography.titleLarge
                     )
                 }

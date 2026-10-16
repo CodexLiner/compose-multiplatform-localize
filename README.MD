@@ -42,6 +42,23 @@ textView.text = getString(R.string.title)
 
 ---
 
+### **Accessing Localized String Arrays**
+
+To access localized string arrays in Compose or Android:
+
+```kotlin
+// Compose Multiplatform
+val items: List<String> = localStringArrayResources(Res.array.planets_array)
+
+// Android Resource ID
+val itemsArray: Array<String> = localStringArrayResources(R.array.planets_array)
+
+// View-based Android
+val itemsArray: Array<String> = resources.getStringArray(R.array.planets_array)
+```
+
+---
+
 ## 📦 Installation
 
 To add the `meenagopal24.localization` library to your project, add the following dependency to your `build.gradle.kts` file:
