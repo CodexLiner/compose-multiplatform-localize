@@ -14,6 +14,20 @@ mavenPublishing {
         version = "1.0.0"
     )
 }
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/codexliner/compose-multiplatform-localize")
+            credentials {
+                username =
+                    project.findProperty("GITHUB_USER") as String? ?: System.getenv("GITHUB_ACTOR")
+                password =
+                    project.findProperty("GITHUB_TOKEN") as String? ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
 
 kotlin {
     androidTarget {
