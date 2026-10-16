@@ -54,4 +54,9 @@ internal interface LocalLanguageProvider {
      * The key is an array identifier, and the value is its list of translations in the current language.
      */
     var localStringArraysState: MutableStateFlow<Map<String, List<String>>>
+
+    /**
+     * A [MutableStateFlow] that indicates whether languages are currently updating or downloading.
+     */
+    var isUpdatingState: MutableStateFlow<Boolean>
 }

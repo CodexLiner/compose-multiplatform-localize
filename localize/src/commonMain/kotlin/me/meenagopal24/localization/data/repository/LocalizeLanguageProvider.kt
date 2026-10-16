@@ -47,6 +47,12 @@ abstract class LocalizeLanguageProvider(val config: ProviderConfig) : LocalLangu
         MutableStateFlow(mapOf())
 
     /**
+     * Indicates whether languages are currently updating or downloading.
+     */
+    override var isUpdatingState: MutableStateFlow<Boolean> =
+        MutableStateFlow(false)
+
+    /**
      * Retrieves the current language code from local storage.
      */
     override fun getCurrentLanguage(): String {
@@ -57,51 +63,65 @@ abstract class LocalizeLanguageProvider(val config: ProviderConfig) : LocalLangu
      * Sets the current language and updates the local language strings in storage.
      */
     override fun setCurrentLanguage(code: String) {
-        runBlocking {
-            val localLang = getLanguageFromLocalStorage(code)
-            val lang = if (localLang != null && (localLang.languages.isNotEmpty() || localLang.stringArrays.isNotEmpty())) {
-                localLang
-            } else {
-                getLanguage(code)
-            }
-            lang?.let {
-                if (it.languages.isNotEmpty() || it.stringArrays.isNotEmpty()) {
-                    settings[SELECTED_LANGUAGE_CODE] = code
-                    saveLanguageToLocalStorage(code, it)
-                    localStringsState.value = it.languages
-                    localStringArraysState.value = it.stringArrays
-                }
-            }
-        }
+        settings[SELECTED_LANGUAGE_CODE] = code
+        applyLocalLanguage(code)
+        fetchAndApplyRemoteLanguage(code)
     }
 
     /**
      * Forces a refresh of all available languages and updates local storage.
      */
     override fun forceUpdateLanguages() {
-        CoroutineScope(Dispatchers.IO).launch {
+        launchBackgroundJob {
             val allLanguages = getLanguages().filterNotNull()
             val currentLanguage = getCurrentLanguage()
-
             val languageMap = allLanguages.associateBy { it.name }
 
-            val supportedLanguageList = config.supportedLanguages.map { name ->
-                languageMap[name] ?: LocalLanguageList(
-                    name = name, language = LocalLanguage()
-                )
+            config.supportedLanguages.forEach { name ->
+                val langList =
+                    languageMap[name] ?: LocalLanguageList(name = name, language = LocalLanguage())
+                saveLanguageToLocalStorage(langList.name, langList.language)
             }
-            supportedLanguageList.forEach { item ->
-                saveLanguageToLocalStorage(
-                    item.name, item.language
-                )
-            }
-            languageMap[currentLanguage]?.language?.let {
-                localStringsState.value = it.languages
-                localStringArraysState.value = it.stringArrays
+
+            languageMap[currentLanguage]?.language?.let { updateLanguageState(it) }
+        }
+    }
+
+    private fun applyLocalLanguage(code: String) {
+        getLanguageFromLocalStorage(code)?.let { updateLanguageState(it) }
+    }
+
+    private fun fetchAndApplyRemoteLanguage(code: String) {
+        launchBackgroundJob {
+            getLanguage(code)?.let { remoteLang ->
+                if (remoteLang.hasContent()) {
+                    saveLanguageToLocalStorage(code, remoteLang)
+                    updateLanguageState(remoteLang)
+                }
             }
         }
     }
 
+    private fun launchBackgroundJob(block: suspend () -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            isUpdatingState.value = true
+            try {
+                block()
+            } finally {
+                isUpdatingState.value = false
+            }
+        }
+    }
+
+    private fun updateLanguageState(localLang: LocalLanguage) {
+        if (localLang.hasContent()) {
+            localStringsState.value = localLang.languages
+            localStringArraysState.value = localLang.stringArrays
+        }
+    }
+
+    private fun LocalLanguage.hasContent(): Boolean =
+        languages.isNotEmpty() || stringArrays.isNotEmpty()
 
     /**
      * Fetches the language strings for a given language code from local storage.

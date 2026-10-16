@@ -7,6 +7,7 @@ import me.meenagopal24.localization.exceptions.InitializationException
 import me.meenagopal24.localization.utils.initPlatform
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Object responsible for managing the localization settings and language provider.
@@ -47,4 +48,10 @@ object Localize {
      * Forces an update of the languages in the language provider.
      */
     fun forceUpdateLanguages() = getProvider().forceUpdateLanguages()
+
+    /**
+     * State flow indicating whether languages are currently updating or downloading.
+     */
+    val isUpdating: StateFlow<Boolean>
+        get() = getProvider().isUpdatingState
 }
