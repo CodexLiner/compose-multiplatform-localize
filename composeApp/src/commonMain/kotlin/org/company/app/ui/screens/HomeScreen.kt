@@ -46,8 +46,8 @@ import me.meenagopal24.localization.local.localStringResources
 fun HomeScreen(modifier: Modifier = Modifier, navController: NavController) {
     val languages = listOf(
         "en" to "English",
-        "hi" to "हिंदी",
-        "te" to "తెలుగు",
+        "hi_test" to "हिंदी",
+        "te_test" to "తెలుగు",
         "test" to "Test"
     )
 
