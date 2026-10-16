@@ -8,19 +8,27 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.get
+import io.ktor.http.ContentType
+import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import me.meenagopal24.localization.models.LocalLanguage
-import me.meenagopal24.localization.models.LocalLanguageList
 import me.meenagopal24.localization.configuration.ProviderConfig
 import me.meenagopal24.localization.data.repository.LocalizeLanguageProvider
-import io.ktor.http.isSuccess
+import me.meenagopal24.localization.models.LocalLanguage
+import me.meenagopal24.localization.models.LocalLanguageList
 
 /**
  * A custom implementation of the language provider that fetches language data from an external source.
+ *
+ * @param baseURL The base URL to fetch language JSON files from.
+ * @param providerConfig The configuration for supported/default languages.
+ * @param contentType The expected ContentType for response body parsing (defaults to ContentType.Any to handle application/json, text/plain, etc.).
  */
-class CustomLocalizeLanguageProvider(val baseURL: String, providerConfig: ProviderConfig) :
-    LocalizeLanguageProvider(providerConfig) {
+class CustomLocalizeLanguageProvider(
+    val baseURL: String,
+    providerConfig: ProviderConfig,
+    val contentType: ContentType = ContentType.Any
+) : LocalizeLanguageProvider(providerConfig) {
 
     /**
      * Retrieves the language data for a given language code by downloading the corresponding JSON.
@@ -42,17 +50,21 @@ class CustomLocalizeLanguageProvider(val baseURL: String, providerConfig: Provid
      * Downloads language data for a specific language code from the configured base URL.
      */
     private suspend fun downloadLanguage(code: String): LocalLanguage {
+        val jsonConfig = Json {
+            prettyPrint = true
+            isLenient = true
+            ignoreUnknownKeys = true
+        }
         val response = HttpClient {
             install(Logging) {
                 logger = Logger.SIMPLE
                 level = LogLevel.ALL
             }
             install(ContentNegotiation) {
-                json(Json {
-                    prettyPrint = true
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                })
+                json(jsonConfig)
+                if (contentType != ContentType.Application.Json) {
+                    json(jsonConfig, contentType = contentType)
+                }
             }
         }.get(baseURL.plus("${code}.json"))
         return if (response.status.isSuccess()) LocalLanguage(response.body<Map<String, String>>())

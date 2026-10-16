@@ -10,6 +10,8 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
+import io.ktor.http.ContentType
+import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.StringValues
 import kotlinx.serialization.json.Json
@@ -49,11 +51,13 @@ class TolgeeLocalizeLanguageProvider(val tolgeeConfig: TolgeeConfig, providerCon
         val pathSegments = tolgeeConfig.baseURL.plus("v2/projects/").plus(tolgeeConfig.appName).plus("/export")
         val result = HttpClient {
             install(ContentNegotiation) {
-                json(Json {
+                val jsonConfig = Json {
                     prettyPrint = true
                     isLenient = true
                     ignoreUnknownKeys = true
-                })
+                }
+                json(jsonConfig)
+                json(jsonConfig, contentType = ContentType.Text.Plain)
             }
             install(Logging) {
                 logger = Logger.SIMPLE
