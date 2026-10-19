@@ -2,11 +2,20 @@ package me.meenagopal24.localization.local
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import me.meenagopal24.localization.data.repository.LocalLanguageProvider
 import me.meenagopal24.localization.utils.replaceWithArgs
 import org.jetbrains.compose.resources.StringArrayResource
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
+
+private val String.cleanKey: String
+    get() = substringAfter(":")
+
+private inline fun <T> safeGetProvider(block: (LocalLanguageProvider) -> T?): T? = runCatching {
+    block(Localize.getProvider())
+}.getOrNull()
 
 /**
  * Retrieves an overridden localized string from the local language provider using a key.
@@ -19,7 +28,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 internal fun getOverriddenString(key: String, fallback: @Composable () -> String): String {
     val overrides = Localize.getProvider().localStringsState.collectAsState()
-    return overrides.value[key.substringAfter(":")] ?: fallback()
+    return overrides.value[key.cleanKey] ?: fallback()
 }
 
 /**
@@ -33,7 +42,7 @@ internal fun getOverriddenString(key: String, fallback: @Composable () -> String
 @Composable
 internal fun getOverriddenStringArray(key: String, fallback: @Composable () -> Array<String>): Array<String> {
     val overrides = Localize.getProvider().localStringArraysState.collectAsState()
-    val list = overrides.value[key.substringAfter(":")]
+    val list = overrides.value[key.cleanKey]
     return if (list.isNullOrEmpty()) fallback() else list.toTypedArray()
 }
 
@@ -62,7 +71,7 @@ private fun getLocalizedString(resource: StringResource, args: Array<out Any>? =
 @Composable
 private fun getLocalizedStringArray(resource: StringArrayResource): List<String> {
     val overrides = Localize.getProvider().localStringArraysState.collectAsState()
-    val list = overrides.value[resource.key.substringAfter(":")]
+    val list = overrides.value[resource.key.cleanKey]
     return if (list.isNullOrEmpty()) stringArrayResource(resource) else list
 }
 
@@ -155,8 +164,32 @@ fun localStringArrayResources(localKey: StringArrayResource): List<String> =
  * @return The localized string, or `null` if not found.
  */
 internal fun getLocalString(key: String): String? {
-    val provider = try { Localize.getProvider() } catch (e: Exception) { return null }
-    return provider.localStringsState.value[key.substringAfter(":")]
+    return safeGetProvider { provider ->
+        provider.localStringsState.value[key.cleanKey]
+    }
+}
+
+/**
+ * Retrieves a localized string using [StringResource], falling back to the resource default if not overridden.
+ *
+ * @param resource The Compose [StringResource].
+ * @return The localized or default string.
+ */
+suspend fun getLocalString(resource: StringResource): String =
+    getLocalString(resource.key) ?: getString(resource)
+
+/**
+ * Retrieves a localized string using [StringResource] with optional format arguments applied.
+ *
+ * @param resource The Compose [StringResource].
+ * @param formatArgs Optional formatting arguments for the string.
+ * @return The localized, formatted string.
+ */
+suspend fun getLocalString(resource: StringResource, vararg formatArgs: Any): String {
+    val base = getLocalString(resource)
+    return formatArgs.takeIf { it.isNotEmpty() }
+        ?.let { base.replaceWithArgs(it.map(Any::toString)) }
+        ?: base
 }
 
 /**
@@ -167,7 +200,8 @@ internal fun getLocalString(key: String): String? {
  */
 internal fun getLocalStringArray(resourceEntryName: String?): Array<String>? {
     if (resourceEntryName == null) return null
-    val provider = try { Localize.getProvider() } catch (e: Exception) { return null }
-    val list = provider.localStringArraysState.value[resourceEntryName.substringAfter(":")]
-    return if (list.isNullOrEmpty()) null else list.toTypedArray()
+    return safeGetProvider { provider ->
+        val list = provider.localStringArraysState.value[resourceEntryName.cleanKey]
+        if (list.isNullOrEmpty()) null else list.toTypedArray()
+    }
 }
