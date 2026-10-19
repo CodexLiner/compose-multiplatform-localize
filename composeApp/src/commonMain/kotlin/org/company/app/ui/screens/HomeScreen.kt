@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import kmplocalize.composeapp.generated.resources.Res
 import kmplocalize.composeapp.generated.resources.ai_description
@@ -53,6 +54,8 @@ fun HomeScreen(modifier: Modifier = Modifier, navController: NavController) {
 
     var currentLangCode by remember { mutableStateOf(Localize.getCurrentLanguage().ifBlank { "en" }) }
     val isUpdating by Localize.isUpdating.collectAsState()
+    val viewModel = viewModel { HomeViewModel() }
+    val uiState by viewModel.uiState.collectAsState()
 
     // Fetch string array in composable scope
     val hintItems: List<String> = localStringArrayResources(Res.array.hint_list)
@@ -173,9 +176,41 @@ fun HomeScreen(modifier: Modifier = Modifier, navController: NavController) {
                         )
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Button(onClick = {}) {
                                 Text(localStringResources(Res.string.generate))
+                            }
+                            Button(onClick = { viewModel.onAddClicked() }) {
+                                Text("Add (ViewModel)")
+                            }
+                        }
+                        if (uiState.isLoading) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            CircularProgressIndicator(modifier = Modifier.size(16.dp))
+                        }
+                        uiState.message?.let { msg ->
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Card(
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(8.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = msg,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Button(onClick = { viewModel.clearMessage() }) {
+                                        Text("Clear")
+                                    }
+                                }
                             }
                         }
                         Spacer(modifier = Modifier.height(8.dp))
