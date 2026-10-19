@@ -5,6 +5,7 @@ import me.meenagopal24.localization.models.enums.FileType
 import me.meenagopal24.localization.utils.parseJsonToLocalLanguage
 import me.meenagopal24.localization.utils.parseStringsToLocalLanguage
 import me.meenagopal24.localization.utils.parseXmlToLocalLanguage
+import me.meenagopal24.localization.utils.replaceWithArgs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -181,5 +182,51 @@ class ParserTest {
         val teStrings = """"title" = "స్వాగతం";"""
         val teLang = LocalLanguage.parse(teStrings, FileType.STRING)
         assertEquals("స్వాగతం", teLang.languages["title"])
+    }
+
+    @Test
+    fun testColonKeyPrefixStripping() {
+        // Test XML with colon prefix in name (e.g. "app:welcome")
+        val xml = """
+            <resources>
+                <string name="app:welcome">Welcome</string>
+                <string-array name="module:items"><item>A</item><item>B</item></string-array>
+            </resources>
+        """.trimIndent()
+        val xmlLang = parseXmlToLocalLanguage(xml)
+        assertEquals("Welcome", xmlLang.languages["welcome"])
+        assertEquals(listOf("A", "B"), xmlLang.stringArrays["items"])
+
+        // Test Apple strings with colon prefix
+        val stringsContent = """"app:cancel" = "Cancel";"""
+        val stringsLang = parseStringsToLocalLanguage(stringsContent)
+        assertEquals("Cancel", stringsLang.languages["cancel"])
+    }
+
+    @Test
+    fun testStringReplaceWithArgs() {
+        val template = "Hello %1\$s, welcome to %2\$s!"
+        val formatted = template.replaceWithArgs(listOf("Alice", "KMPLocalize"))
+        assertEquals("Hello Alice, welcome to KMPLocalize!", formatted)
+    }
+
+    @Test
+    fun testMalformedJsonHandling() {
+        val malformedJson = "{ invalid_json }"
+        val lang = parseJsonToLocalLanguage(malformedJson)
+        assertNotNull(lang)
+        assertEquals(0, lang.languages.size)
+        assertEquals(0, lang.stringArrays.size)
+    }
+
+    @Test
+    fun testCleanKeyLogic() {
+        val keyWithPrefix = "app:welcome_message"
+        val cleanKey = keyWithPrefix.substringAfter(":")
+        assertEquals("welcome_message", cleanKey)
+
+        val keyWithoutPrefix = "welcome_message"
+        val cleanKey2 = keyWithoutPrefix.substringAfter(":")
+        assertEquals("welcome_message", cleanKey2)
     }
 }
