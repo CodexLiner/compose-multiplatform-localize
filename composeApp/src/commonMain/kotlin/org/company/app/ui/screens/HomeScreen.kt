@@ -42,17 +42,17 @@ import kmplocalize.composeapp.generated.resources.welcome_to_pilloo_ai
 import me.meenagopal24.localization.local.Localize
 import me.meenagopal24.localization.local.localStringArrayResources
 import me.meenagopal24.localization.local.localStringResources
+import me.meenagopal24.localization.models.enums.Language
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier, navController: NavController) {
     val languages = listOf(
-        "en" to "English",
-        "hi_test" to "हिंदी",
-        "te_test" to "తెలుగు",
-        "test" to "Test"
+        Language.ENGLISH_US,
+        Language.HINDI,
+        Language.MARATHI
     )
 
-    var currentLangCode by remember { mutableStateOf(Localize.getCurrentLanguage().ifBlank { "en" }) }
+    var currentLangCode by remember { mutableStateOf(Localize.getCurrentLanguage().ifBlank { Language.ENGLISH_US.code }) }
     val isUpdating by Localize.isUpdating.collectAsState()
     val viewModel = viewModel { HomeViewModel() }
     val uiState by viewModel.uiState.collectAsState()
@@ -113,27 +113,27 @@ fun HomeScreen(modifier: Modifier = Modifier, navController: NavController) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            languages.forEach { (code, label) ->
-                val isSelected = currentLangCode == code
+            languages.forEach { lang ->
+                val isSelected = currentLangCode.equals(lang.code, ignoreCase = true)
                 if (isSelected) {
                     Button(
                         onClick = {
-                            currentLangCode = code
-                            Localize.setCurrentLanguage(code)
+                            currentLangCode = lang.code
+                            Localize.setCurrentLanguage(lang)
                         },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text(label)
+                        Text("${lang.flag} ${lang.nativeName}")
                     }
                 } else {
                     OutlinedButton(
                         onClick = {
-                            currentLangCode = code
-                            Localize.setCurrentLanguage(code)
+                            currentLangCode = lang.code
+                            Localize.setCurrentLanguage(lang)
                         },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text(label)
+                        Text("${lang.flag} ${lang.nativeName}")
                     }
                 }
             }
