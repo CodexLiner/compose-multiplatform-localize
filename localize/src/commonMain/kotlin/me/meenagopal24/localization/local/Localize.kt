@@ -8,6 +8,7 @@ import me.meenagopal24.localization.utils.initPlatform
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
 import kotlinx.coroutines.flow.StateFlow
+import me.meenagopal24.localization.models.enums.Language
 
 /**
  * Object responsible for managing the localization settings and language provider.
@@ -40,9 +41,21 @@ object Localize {
     fun setCurrentLanguage(code: String) = getProvider().setCurrentLanguage(code)
 
     /**
+     * Sets the current language using a type-safe [me.meenagopal24.localization.models.enums.Language] enum.
+     */
+    fun setCurrentLanguage(language: Language) =
+        getProvider().setCurrentLanguage(language.code)
+
+    /**
      * Retrieves the current language from the language provider.
      */
     fun getCurrentLanguage(): String = getProvider().getCurrentLanguage()
+
+    /**
+     * Retrieves the current language as a type-safe [me.meenagopal24.localization.models.enums.Language] enum.
+     */
+    fun getCurrentLanguageEnum(): Language =
+        Language.fromCodeOrDefault(getCurrentLanguage())
 
     /**
      * Forces an update of the languages in the language provider.
