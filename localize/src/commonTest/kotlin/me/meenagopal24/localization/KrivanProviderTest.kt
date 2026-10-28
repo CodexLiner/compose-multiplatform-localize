@@ -1,12 +1,16 @@
 package me.meenagopal24.localization
 
 import me.meenagopal24.localization.configuration.ProviderConfig
+import me.meenagopal24.localization.models.LocalLanguage
 import me.meenagopal24.localization.models.enums.FileType
 import me.meenagopal24.localization.providers.krivan.KrivanConfig
 import me.meenagopal24.localization.providers.krivan.KrivanConstants
 import me.meenagopal24.localization.providers.krivan.KrivanEnvironment
+import me.meenagopal24.localization.providers.krivan.KrivanFallbackManager
 import me.meenagopal24.localization.providers.krivan.KrivanLocalizeLanguageProvider
+import me.meenagopal24.localization.providers.krivan.KrivanPatchEngine
 import me.meenagopal24.localization.providers.krivan.KrivanPayloadParser
+import me.meenagopal24.localization.providers.krivan.KrivanSyncState
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -77,16 +81,38 @@ class KrivanProviderTest {
     }
 
     @Test
-    fun testKrivanPayloadParserWithAndroidXml() {
-        val parser = KrivanPayloadParser()
-        val xml = """
-            <resources>
-                <string name="cta_submit">Submit Application</string>
-            </resources>
-        """.trimIndent()
+    fun testKrivanPatchEngineInstantHotfix() {
+        val patchEngine = KrivanPatchEngine()
+        val initial = LocalLanguage(languages = mapOf("checkout.title" to "Checkout", "cta.pay" to "Pay Now"))
 
-        val parsed = parser.parse(xml, FileType.XML)
-        assertEquals("Submit Application", parsed.languages["cta_submit"])
+        // Update action
+        val patched = patchEngine.applyKeyPatch(initial, "cta.pay", "Instant Checkout", "update")
+        assertEquals("Instant Checkout", patched.languages["cta.pay"])
+        assertEquals("Checkout", patched.languages["checkout.title"])
+
+        // Delete action
+        val deleted = patchEngine.applyKeyPatch(patched, "checkout.title", null, "delete")
+        assertTrue(!deleted.languages.containsKey("checkout.title"))
+        assertEquals("Instant Checkout", deleted.languages["cta.pay"])
+    }
+
+    @Test
+    fun testKrivanFallbackManagerOfflineFirst() {
+        val bundledEnglish = LocalLanguage(languages = mapOf("welcome" to "Bundled Welcome"))
+        val fallbackManager = KrivanFallbackManager(preBundledLanguages = mapOf("en" to bundledEnglish))
+
+        // When cached disk copy exists
+        val diskCopy = LocalLanguage(languages = mapOf("welcome" to "Disk Cached Welcome"))
+        val resolvedFromDisk = fallbackManager.resolveOfflineCopy("en", diskCopy)
+        assertEquals("Disk Cached Welcome", resolvedFromDisk.languages["welcome"])
+
+        // When disk copy is empty / missing -> resolves to pre-bundled asset!
+        val resolvedFromBundled = fallbackManager.resolveOfflineCopy("en", null)
+        assertEquals("Bundled Welcome", resolvedFromBundled.languages["welcome"])
+
+        // When neither exists -> empty fallback
+        val emptyResolved = fallbackManager.resolveOfflineCopy("fr", null)
+        assertTrue(emptyResolved.languages.isEmpty())
     }
 
     @Test
@@ -107,7 +133,8 @@ class KrivanProviderTest {
         assertEquals("loc_live_abc", provider.krivanConfig.apiKey)
         assertEquals("en", provider.config.defaultLanguage)
         assertEquals(2, provider.config.supportedLanguages.size)
+        assertEquals(KrivanSyncState.Idle, provider.syncState.value)
+
         provider.stopLiveOtaSync()
     }
 }
-

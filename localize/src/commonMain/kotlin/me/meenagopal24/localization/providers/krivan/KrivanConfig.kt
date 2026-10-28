@@ -1,5 +1,6 @@
 package me.meenagopal24.localization.providers.krivan
 
+import me.meenagopal24.localization.models.LocalLanguage
 import me.meenagopal24.localization.models.enums.FileType
 
 /**
@@ -19,6 +20,7 @@ import me.meenagopal24.localization.models.enums.FileType
  * @property namespace Optional namespace to filter translations by.
  * @property autoReconnect Whether to automatically re-establish the live sync stream if the network drops. Defaults to true.
  * @property reconnectDelayMs Reconnection backoff interval in milliseconds. Defaults to 5000ms.
+ * @property preBundledDefaults Optional offline-first bundled string maps packaged with the app binary.
  */
 data class KrivanConfig(
     val projectId: String,
@@ -30,7 +32,8 @@ data class KrivanConfig(
     val enableEtagCaching: Boolean = true,
     val namespace: String? = null,
     val autoReconnect: Boolean = true,
-    val reconnectDelayMs: Long = 5000L
+    val reconnectDelayMs: Long = 5000L,
+    val preBundledDefaults: Map<String, LocalLanguage> = emptyMap()
 ) {
     init {
         require(projectId.isNotBlank()) { "Krivan: `projectId` must not be blank." }
