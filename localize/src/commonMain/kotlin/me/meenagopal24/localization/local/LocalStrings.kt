@@ -10,8 +10,11 @@ import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
 
-private val String.cleanKey: String
-    get() = substringAfter(":")
+internal inline val String.cleanKey: String
+    get() {
+        val idx = indexOf(':')
+        return if (idx == -1) this else substring(idx + 1)
+    }
 
 private inline fun <T> safeGetProvider(block: (LocalLanguageProvider) -> T?): T? = runCatching {
     block(Localize.getProvider())
@@ -156,6 +159,35 @@ fun localStringArrayResources(id: Int): Array<String> = getLocalizedStringArray(
 @Composable
 fun localStringArrayResources(localKey: StringArrayResource): List<String> =
     getLocalizedStringArray(localKey)
+
+/**
+ * Resolves a pluralized localized string by checking CLDR plural forms (e.g. `items_count_one`, `items_count_other`).
+ *
+ * @param key Base string key identifier.
+ * @param count Numeric quantity.
+ * @param formatArgs Optional formatting arguments.
+ */
+@Composable
+fun localPluralResources(key: String, count: Int, vararg formatArgs: Any): String {
+    val quantity = when (count) {
+        0 -> "zero"
+        1 -> "one"
+        2 -> "two"
+        else -> "other"
+    }
+    val pluralKey = "${key}_$quantity"
+    val base = getOverriddenString(pluralKey) {
+        getOverriddenString("${key}_other") {
+            getOverriddenString(key) { key }
+        }
+    }
+    val args = if (formatArgs.isNotEmpty()) {
+        formatArgs.map { it.toString() }
+    } else {
+        listOf(count.toString())
+    }
+    return base.replaceWithArgs(args)
+}
 
 /**
  * Retrieves a localized string from the state provider directly using a raw string key.

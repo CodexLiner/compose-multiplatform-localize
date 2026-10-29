@@ -85,12 +85,10 @@ class KrivanProviderTest {
         val patchEngine = KrivanPatchEngine()
         val initial = LocalLanguage(languages = mapOf("checkout.title" to "Checkout", "cta.pay" to "Pay Now"))
 
-        // Update action
         val patched = patchEngine.applyKeyPatch(initial, "cta.pay", "Instant Checkout", "update")
         assertEquals("Instant Checkout", patched.languages["cta.pay"])
         assertEquals("Checkout", patched.languages["checkout.title"])
 
-        // Delete action
         val deleted = patchEngine.applyKeyPatch(patched, "checkout.title", null, "delete")
         assertTrue(!deleted.languages.containsKey("checkout.title"))
         assertEquals("Instant Checkout", deleted.languages["cta.pay"])
@@ -101,16 +99,13 @@ class KrivanProviderTest {
         val bundledEnglish = LocalLanguage(languages = mapOf("welcome" to "Bundled Welcome"))
         val fallbackManager = KrivanFallbackManager(preBundledLanguages = mapOf("en" to bundledEnglish))
 
-        // When cached disk copy exists
         val diskCopy = LocalLanguage(languages = mapOf("welcome" to "Disk Cached Welcome"))
         val resolvedFromDisk = fallbackManager.resolveOfflineCopy("en", diskCopy)
         assertEquals("Disk Cached Welcome", resolvedFromDisk.languages["welcome"])
 
-        // When disk copy is empty / missing -> resolves to pre-bundled asset!
         val resolvedFromBundled = fallbackManager.resolveOfflineCopy("en", null)
         assertEquals("Bundled Welcome", resolvedFromBundled.languages["welcome"])
 
-        // When neither exists -> empty fallback
         val emptyResolved = fallbackManager.resolveOfflineCopy("fr", null)
         assertTrue(emptyResolved.languages.isEmpty())
     }
@@ -122,7 +117,6 @@ class KrivanProviderTest {
             supportedLanguages = listOf("en", "hi")
         )
 
-        // Minimal caller setup requiring ONLY required information
         val provider = KrivanLocalizeLanguageProvider(
             projectId = "test-uuid",
             apiKey = "loc_live_abc",
@@ -140,20 +134,17 @@ class KrivanProviderTest {
 
     @Test
     fun testLanguageLocaleMatchingAndCasing() {
-        // Case-insensitivity and subtag resolution
         assertEquals(me.meenagopal24.localization.models.enums.Language.HINDI, me.meenagopal24.localization.models.enums.Language.fromCode("hi-IN"))
         assertEquals(me.meenagopal24.localization.models.enums.Language.HINDI, me.meenagopal24.localization.models.enums.Language.fromCode("hi-in"))
         assertEquals(me.meenagopal24.localization.models.enums.Language.HINDI, me.meenagopal24.localization.models.enums.Language.fromCode("HI-in"))
         assertEquals(me.meenagopal24.localization.models.enums.Language.HINDI, me.meenagopal24.localization.models.enums.Language.fromCode("hi"))
         assertEquals(me.meenagopal24.localization.models.enums.Language.HINDI, me.meenagopal24.localization.models.enums.Language.fromCode("hi_in"))
 
-        // matches() checks
         assertTrue(me.meenagopal24.localization.models.enums.Language.HINDI.matches("hi-in"))
         assertTrue(me.meenagopal24.localization.models.enums.Language.HINDI.matches("hi-IN"))
         assertTrue(me.meenagopal24.localization.models.enums.Language.HINDI.matches("hi_in"))
         assertTrue(me.meenagopal24.localization.models.enums.Language.HINDI.matches("hi"))
 
-        // lowercaseCode
         assertEquals("hi-in", me.meenagopal24.localization.models.enums.Language.HINDI.lowercaseCode)
         assertEquals("mr-in", me.meenagopal24.localization.models.enums.Language.MARATHI.lowercaseCode)
         assertEquals("en-us", me.meenagopal24.localization.models.enums.Language.ENGLISH_US.lowercaseCode)

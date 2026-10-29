@@ -4,13 +4,16 @@ import nl.adaptivity.xmlutil.serialization.XML
 import me.meenagopal24.localization.models.LocalLanguage
 import me.meenagopal24.localization.models.Resources
 
+private val StringXmlRegex = Regex("""<string\s+name="[^"]+">([^<]+(<[^>]+>[^<]*</[^>]+>[^<]*)*)</string>""")
+private val ItemXmlRegex = Regex("""<item>([^<]+(<[^>]+>[^<]*</[^>]+>[^<]*)*)</item>""")
+private val SharedXmlDecoder = XML { autoPolymorphic = true }
+
 /**
  * Parses an XML string into a [LocalLanguage] containing single strings and string arrays,
  * converting text with HTML tags into CDATA sections.
  */
 fun parseXmlToLocalLanguage(xml: String): LocalLanguage {
-    val stringRegex = """<string\s+name="[^"]+">([^<]+(<[^>]+>[^<]*</[^>]+>[^<]*)*)</string>""".toRegex()
-    var modifiedString = xml.replace(stringRegex) { matchResult ->
+    var modifiedString = xml.replace(StringXmlRegex) { matchResult ->
         val originalText = matchResult.groups[1]?.value ?: ""
         if (originalText.contains("<") && originalText.contains(">")) {
             val name = matchResult.value.substringAfter("name=\"").substringBefore("\"")
@@ -18,21 +21,23 @@ fun parseXmlToLocalLanguage(xml: String): LocalLanguage {
         } else matchResult.value
     }
 
-    val itemRegex = """<item>([^<]+(<[^>]+>[^<]*</[^>]+>[^<]*)*)</item>""".toRegex()
-    modifiedString = modifiedString.replace(itemRegex) { matchResult ->
+    modifiedString = modifiedString.replace(ItemXmlRegex) { matchResult ->
         val originalText = matchResult.groups[1]?.value ?: ""
         if (originalText.contains("<") && originalText.contains(">")) {
             "<item><![CDATA[$originalText]]></item>"
         } else matchResult.value
     }
 
-    val decoder = XML {
-        autoPolymorphic = true
+    val resources = SharedXmlDecoder.decodeFromString(Resources.serializer(), modifiedString)
+    val stringsMap = resources.string.associate {
+        val idx = it.name.indexOf(':')
+        val cleanKey = if (idx == -1) it.name else it.name.substring(idx + 1)
+        cleanKey to it.value
     }
-    val resources = decoder.decodeFromString(Resources.serializer(), modifiedString)
-    val stringsMap = resources.string.associate { it.name.substringAfter(":") to it.value }
     val stringArraysMap = resources.stringArray.associate { array ->
-        array.name.substringAfter(":") to array.item.map { it.value }
+        val idx = array.name.indexOf(':')
+        val cleanKey = if (idx == -1) array.name else array.name.substring(idx + 1)
+        cleanKey to array.item.map { it.value }
     }
     return LocalLanguage(languages = stringsMap, stringArrays = stringArraysMap)
 }

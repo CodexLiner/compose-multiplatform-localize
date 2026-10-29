@@ -1,8 +1,25 @@
 package me.meenagopal24.localization.local
 
+import android.content.res.Resources
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import java.util.concurrent.ConcurrentHashMap
+
+private val resourceEntryNameCache = ConcurrentHashMap<Int, String>()
+
+/**
+ * Fast cached accessor for resource entry names to eliminate repeated JNI reflection.
+ */
+internal fun Resources.getEntryNameCached(id: Int): String {
+    return resourceEntryNameCache.computeIfAbsent(id) { resId ->
+        try {
+            getResourceEntryName(resId)
+        } catch (e: Exception) {
+            resId.toString()
+        }
+    }
+}
 
 /**
  * Retrieves the localized string for a given key.
@@ -10,7 +27,7 @@ import androidx.compose.ui.res.stringResource
 @Composable
 actual fun getLocalizedString(id: Int): String {
     val context = LocalContext.current
-    val key = context.resources.getResourceEntryName(id)
+    val key = context.resources.getEntryNameCached(id)
     return getOverriddenString(key) { stringResource(id) }
 }
 
@@ -20,6 +37,6 @@ actual fun getLocalizedString(id: Int): String {
 @Composable
 actual fun getLocalizedStringArray(id: Int): Array<String> {
     val context = LocalContext.current
-    val key = context.resources.getResourceEntryName(id)
+    val key = context.resources.getEntryNameCached(id)
     return getOverriddenStringArray(key) { context.resources.getStringArray(id) }
 }

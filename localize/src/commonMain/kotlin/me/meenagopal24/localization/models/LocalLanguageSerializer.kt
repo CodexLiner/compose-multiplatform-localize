@@ -42,35 +42,55 @@ object LocalLanguageSerializer : KSerializer<LocalLanguage> {
         val stringArraysObj = jsonElement["stringArrays"]
 
         if (languagesObj is JsonObject || stringArraysObj is JsonObject) {
-            val languages = (languagesObj as? JsonObject)?.mapNotNull { (k, v) ->
-                val cleanKey = k.substringAfter(":")
-                val content = (v as? JsonPrimitive)?.content ?: return@mapNotNull null
-                cleanKey to content
-            }?.toMap().orEmpty()
+            val languages = if (languagesObj is JsonObject) {
+                val map = HashMap<String, String>(languagesObj.size)
+                for ((k, v) in languagesObj) {
+                    val content = (v as? JsonPrimitive)?.content
+                    if (content != null) {
+                        val idx = k.indexOf(':')
+                        val cleanKey = if (idx == -1) k else k.substring(idx + 1)
+                        map[cleanKey] = content
+                    }
+                }
+                map
+            } else emptyMap()
 
-            val stringArrays = (stringArraysObj as? JsonObject)?.mapNotNull { (k, v) ->
-                val cleanKey = k.substringAfter(":")
-                val list = (v as? JsonArray)?.mapNotNull { elem ->
-                    (elem as? JsonPrimitive)?.content ?: elem.toString().removeSurrounding("\"")
-                } ?: return@mapNotNull null
-                cleanKey to list
-            }?.toMap().orEmpty()
+            val stringArrays = if (stringArraysObj is JsonObject) {
+                val map = HashMap<String, List<String>>(stringArraysObj.size)
+                for ((k, v) in stringArraysObj) {
+                    if (v is JsonArray) {
+                        val list = ArrayList<String>(v.size)
+                        for (elem in v) {
+                            val content = (elem as? JsonPrimitive)?.content ?: elem.toString().removeSurrounding("\"")
+                            list.add(content)
+                        }
+                        val idx = k.indexOf(':')
+                        val cleanKey = if (idx == -1) k else k.substring(idx + 1)
+                        map[cleanKey] = list
+                    }
+                }
+                map
+            } else emptyMap()
 
             return LocalLanguage(languages = languages, stringArrays = stringArrays)
         } else {
-            val languages = mutableMapOf<String, String>()
-            val stringArrays = mutableMapOf<String, List<String>>()
+            val languages = HashMap<String, String>(jsonElement.size)
+            val stringArrays = HashMap<String, List<String>>()
 
             for ((k, v) in jsonElement) {
-                val cleanKey = k.substringAfter(":")
+                val idx = k.indexOf(':')
+                val cleanKey = if (idx == -1) k else k.substring(idx + 1)
                 when (v) {
                     is JsonPrimitive -> {
                         languages[cleanKey] = v.content
                     }
                     is JsonArray -> {
-                        stringArrays[cleanKey] = v.mapNotNull { elem ->
-                            (elem as? JsonPrimitive)?.content ?: elem.toString().removeSurrounding("\"")
+                        val list = ArrayList<String>(v.size)
+                        for (elem in v) {
+                            val content = (elem as? JsonPrimitive)?.content ?: elem.toString().removeSurrounding("\"")
+                            list.add(content)
                         }
+                        stringArrays[cleanKey] = list
                     }
                     else -> {}
                 }

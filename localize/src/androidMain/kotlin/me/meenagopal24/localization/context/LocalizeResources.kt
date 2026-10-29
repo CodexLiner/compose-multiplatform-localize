@@ -1,6 +1,7 @@
 package me.meenagopal24.localization.context
 
 import android.content.res.Resources
+import me.meenagopal24.localization.local.getEntryNameCached
 import me.meenagopal24.localization.local.getLocalString
 import me.meenagopal24.localization.local.getLocalStringArray
 
@@ -18,7 +19,7 @@ class LocalizeResources(resources: Resources) :
      * is not found, the base string resource is returned.
      */
     override fun getString(id: Int): String {
-        return getLocalString(getResourceEntryName(id)) ?: super.getString(id)
+        return getLocalString(getEntryNameCached(id)) ?: super.getString(id)
     }
 
     /**
@@ -26,7 +27,7 @@ class LocalizeResources(resources: Resources) :
      * string array is not found, the base string array is returned.
      */
     override fun getStringArray(id: Int): Array<String> {
-        return getLocalStringArray(getResourceEntryName(id)) ?: super.getStringArray(id)
+        return getLocalStringArray(getEntryNameCached(id)) ?: super.getStringArray(id)
     }
 
     /**
@@ -34,9 +35,9 @@ class LocalizeResources(resources: Resources) :
      * arguments. If the localized string is not found, the base formatted string resource is returned.
      */
     override fun getString(id: Int, vararg formatArgs: Any?): String {
-        val formatedString = getLocalString(getResourceEntryName(id))
+        val formattedString = getLocalString(getEntryNameCached(id))
             ?.let { String.format(it, *formatArgs) }
-        return formatedString ?: super.getString(id, *formatArgs)
+        return formattedString ?: super.getString(id, *formatArgs)
     }
 
     /**
@@ -44,7 +45,7 @@ class LocalizeResources(resources: Resources) :
      * If the localized text is not found, the base text resource is returned.
      */
     override fun getText(id: Int): CharSequence {
-        return getLocalString(getResourceEntryName(id)) ?: super.getText(id)
+        return getLocalString(getEntryNameCached(id)) ?: super.getText(id)
     }
 
     /**
@@ -53,6 +54,6 @@ class LocalizeResources(resources: Resources) :
      * If the localized text is not found, the base text resource or the default value is returned.
      */
     override fun getText(id: Int, def: CharSequence?): CharSequence {
-        return getLocalString(getResourceEntryName(id)) ?: super.getText(id, def)
+        return getLocalString(getEntryNameCached(id)) ?: super.getText(id, def)
     }
 }

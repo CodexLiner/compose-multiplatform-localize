@@ -17,7 +17,6 @@ enum class Language(
     val flag: String,
     val isRtl: Boolean = false
 ) {
-    // Global & Americas
     ENGLISH_US("en-US", "English (US)", "English (US)", "🇺🇸"),
     ENGLISH_UK("en-GB", "English (UK)", "English (UK)", "🇬🇧"),
     SPANISH_SPAIN("es-ES", "Spanish (Spain)", "Español", "🇪🇸"),
@@ -34,11 +33,9 @@ enum class Language(
     SWEDISH("sv-SE", "Swedish", "Svenska", "🇸🇪"),
     TURKISH("tr-TR", "Turkish", "Türkçe", "🇹🇷"),
 
-    // Middle East
     ARABIC("ar-SA", "Arabic", "العربية", "🇸🇦", isRtl = true),
     HEBREW("he-IL", "Hebrew", "עברית", "🇮🇱", isRtl = true),
 
-    // Asia
     JAPANESE("ja-JP", "Japanese", "日本語", "🇯🇵"),
     KOREAN("ko-KR", "Korean", "한국어", "🇰🇷"),
     CHINESE_SIMPLIFIED("zh-CN", "Chinese (Simplified)", "简体中文", "🇨🇳"),
@@ -47,7 +44,6 @@ enum class Language(
     VIETNAMESE("vi-VN", "Vietnamese", "Tiếng Việt", "🇻🇳"),
     THAI("th-TH", "Thai", "ไทย", "🇹🇭"),
 
-    // Indian Scheduled & Regional Languages (Official 22 + Regional)
     HINDI("hi-IN", "Hindi", "हिन्दी", "🇮🇳"),
     BENGALI("bn-IN", "Bengali", "বাংলা", "🇮🇳"),
     TELUGU("te-IN", "Telugu", "తెలుగు", "🇮🇳"),
@@ -77,34 +73,6 @@ enum class Language(
     BODO("brx-IN", "Bodo", "बड़ो", "🇮🇳"),
     SANTALI("sat-IN", "Santali", "ᱥᱟᱱᱛᱟᱲᱤ", "🇮🇳");
 
-    companion object {
-        /**
-         * Resolves a [Language] enum from a string code with case-insensitive and prefix fallback.
-         * For example: "en-US", "en", "HI-IN", "hi" all resolve reliably.
-         */
-        fun fromCode(code: String): Language? {
-            if (code.isBlank()) return null
-            val normalized = code.trim().lowercase().replace('_', '-')
-
-            // 1. Exact match on code (e.g. "hi-in")
-            entries.find { it.code.lowercase() == normalized }?.let { return it }
-
-            // 2. Primary subtag match (e.g. "hi" -> HINDI, "en" -> ENGLISH_US)
-            val primaryTag = normalized.split('-').firstOrNull() ?: ""
-            if (primaryTag.isNotEmpty()) {
-                entries.find { it.code.lowercase().startsWith("$primaryTag-") }?.let { return it }
-            }
-
-            return null
-        }
-
-        /**
-         * Resolves a [Language] enum or returns [default] if not recognized.
-         */
-        fun fromCodeOrDefault(code: String, default: Language = ENGLISH_US): Language {
-            return fromCode(code) ?: default
-        }
-    }
     /**
      * Lowercase representation of the BCP-47 locale code (e.g., "hi-in", "en-us").
      */
@@ -122,5 +90,32 @@ enum class Language(
         return thisNormalized == normalized ||
                 thisNormalized.split('-').first() == normalized ||
                 normalized.split('-').first() == thisNormalized.split('-').first()
+    }
+
+    companion object {
+        /**
+         * Resolves a [Language] enum from a string code with case-insensitive and prefix fallback.
+         * For example: "en-US", "en", "HI-IN", "hi" all resolve reliably.
+         */
+        fun fromCode(code: String): Language? {
+            if (code.isBlank()) return null
+            val normalized = code.trim().lowercase().replace('_', '-')
+
+            entries.find { it.code.lowercase() == normalized }?.let { return it }
+
+            val primaryTag = normalized.split('-').firstOrNull() ?: ""
+            if (primaryTag.isNotEmpty()) {
+                entries.find { it.code.lowercase().startsWith("$primaryTag-") }?.let { return it }
+            }
+
+            return null
+        }
+
+        /**
+         * Resolves a [Language] enum or returns [default] if not recognized.
+         */
+        fun fromCodeOrDefault(code: String, default: Language = ENGLISH_US): Language {
+            return fromCode(code) ?: default
+        }
     }
 }

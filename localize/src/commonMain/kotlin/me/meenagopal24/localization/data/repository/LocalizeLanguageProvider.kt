@@ -10,13 +10,14 @@ import com.russhwolf.settings.set
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import me.meenagopal24.localization.exceptions.InvalidConfigurationException
 import me.meenagopal24.localization.models.LocalLanguageList
+import me.meenagopal24.localization.utils.SharedLocalizeJson
 
 /**
  * Abstract base class for providing localized language data.
@@ -24,6 +25,8 @@ import me.meenagopal24.localization.models.LocalLanguageList
  * @property config Configuration for the language provider, including app name, supported languages, and default language.
  */
 abstract class LocalizeLanguageProvider(val config: ProviderConfig) : LocalLanguageProvider {
+
+    private val providerScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     init {
         require(config.supportedLanguages.isNotEmpty()) {
@@ -103,7 +106,7 @@ abstract class LocalizeLanguageProvider(val config: ProviderConfig) : LocalLangu
     }
 
     private fun launchBackgroundJob(block: suspend () -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
+        providerScope.launch {
             isUpdatingState.value = true
             try {
                 block()
@@ -128,13 +131,13 @@ abstract class LocalizeLanguageProvider(val config: ProviderConfig) : LocalLangu
      */
     private fun getLanguageFromLocalStorage(code: String): LocalLanguage? {
         return settings.get<String>(code.plus(SELECTED_LANGUAGE_MAP))
-            ?.let { Json.decodeFromString<LocalLanguage>(it) }
+            ?.let { SharedLocalizeJson.decodeFromString<LocalLanguage>(it) }
     }
 
     /**
      * Saves the language strings for a given language code to local storage.
      */
     private fun saveLanguageToLocalStorage(code: String, localLanguage: LocalLanguage) {
-        settings[code.plus(SELECTED_LANGUAGE_MAP)] = Json.encodeToString(localLanguage)
+        settings[code.plus(SELECTED_LANGUAGE_MAP)] = SharedLocalizeJson.encodeToString(localLanguage)
     }
 }

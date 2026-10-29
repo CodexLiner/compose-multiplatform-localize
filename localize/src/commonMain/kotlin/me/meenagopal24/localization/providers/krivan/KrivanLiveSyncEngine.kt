@@ -58,6 +58,8 @@ internal class KrivanLiveSyncEngine(
                 "${config.effectiveBaseUrl}$streamPath"
             }
 
+            var retryAttempt = 0
+
             while (isActive && !isPaused) {
                 try {
                     httpClient.prepareGet(streamUrl) {
@@ -72,6 +74,9 @@ internal class KrivanLiveSyncEngine(
                             onStateChanged(KrivanSyncState.Error("SSE Connection rejected: HTTP ${response.status.value}"))
                             return@execute
                         }
+
+                        retryAttempt = 0
+                        onStateChanged(KrivanSyncState.LiveConnected(config.subscribedEvents))
 
                         val channel = response.bodyAsChannel()
                         var currentEvent: String? = null
@@ -105,7 +110,12 @@ internal class KrivanLiveSyncEngine(
                     break
                 }
 
-                delay(config.reconnectDelayMs)
+                retryAttempt++
+                val exponentialDelay = config.reconnectDelayMs * (1L shl (retryAttempt - 1).coerceAtMost(5))
+                val jitter = kotlin.random.Random.nextLong(0, 500)
+                val backoffDelay = (exponentialDelay + jitter).coerceAtMost(30_000L)
+
+                delay(backoffDelay)
             }
         }
     }

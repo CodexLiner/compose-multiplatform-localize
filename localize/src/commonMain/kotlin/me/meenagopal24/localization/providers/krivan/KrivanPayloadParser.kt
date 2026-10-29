@@ -5,16 +5,13 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import me.meenagopal24.localization.models.LocalLanguage
 import me.meenagopal24.localization.models.enums.FileType
+import me.meenagopal24.localization.utils.SharedLocalizeJson
 
 /**
  * Encapsulated parser for handling translation payloads from the Krivan backend.
  */
 internal class KrivanPayloadParser(
-    private val json: Json = Json {
-        prettyPrint = true
-        isLenient = true
-        ignoreUnknownKeys = true
-    }
+    private val json: Json = SharedLocalizeJson
 ) {
     /**
      * Parses the raw network response body into a [LocalLanguage] domain model according to [FileType].
@@ -37,10 +34,12 @@ internal class KrivanPayloadParser(
             val element = json.parseToJsonElement(bodyString)
             if (element is JsonObject && element.containsKey("translations") && element["translations"] is JsonObject) {
                 val translationsObj = element["translations"] as JsonObject
-                val map = mutableMapOf<String, String>()
+                val map = HashMap<String, String>(translationsObj.size)
                 for ((k, v) in translationsObj) {
                     if (v is JsonPrimitive) {
-                        map[k.substringAfter(":")] = v.content
+                        val idx = k.indexOf(':')
+                        val cleanKey = if (idx == -1) k else k.substring(idx + 1)
+                        map[cleanKey] = v.content
                     }
                 }
                 LocalLanguage(languages = map)

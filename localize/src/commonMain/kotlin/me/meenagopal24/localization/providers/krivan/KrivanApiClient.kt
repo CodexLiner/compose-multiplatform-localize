@@ -67,7 +67,6 @@ internal class KrivanApiClient(
     suspend fun fetchTranslations(code: String, cachedEtag: String?): FetchResult {
         val primaryResult = doFetch(code, cachedEtag)
 
-        // Resilient fallback for unpatched or legacy backends that store locales in lowercase (e.g. "hi-in" instead of "hi-IN")
         if (primaryResult is FetchResult.Success && primaryResult.language.languages.isEmpty()) {
             val lowercaseCode = code.lowercase()
             if (lowercaseCode != code) {
@@ -77,7 +76,6 @@ internal class KrivanApiClient(
                 }
             }
 
-            // Also try language primary tag (e.g. "hi" from "hi-IN")
             val baseCode = code.split('-', '_').firstOrNull()?.lowercase()
             if (!baseCode.isNullOrEmpty() && baseCode != code && baseCode != lowercaseCode) {
                 val baseResult = doFetch(baseCode, cachedEtag)
