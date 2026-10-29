@@ -41,7 +41,7 @@ internal class KrivanApiClient(
         }
         install(Logging) {
             logger = Logger.SIMPLE
-            level = LogLevel.INFO
+            level = LogLevel.ALL
         }
         install(DefaultRequest) {
             headers {
@@ -61,9 +61,35 @@ internal class KrivanApiClient(
     }
 
     /**
-     * Fetches language translations from the backend with ETag 304 validation.
+     * Fetches language translations from the backend with ETag 304 validation and intelligent locale fallback.
      */
     suspend fun fetchTranslations(code: String, cachedEtag: String?): FetchResult {
+        val primaryResult = doFetch(code, cachedEtag)
+
+        // Resilient fallback for unpatched or legacy backends that store locales in lowercase (e.g. "hi-in" instead of "hi-IN")
+        if (primaryResult is FetchResult.Success && primaryResult.language.languages.isEmpty()) {
+            val lowercaseCode = code.lowercase()
+            if (lowercaseCode != code) {
+                val lowercaseResult = doFetch(lowercaseCode, cachedEtag)
+                if (lowercaseResult is FetchResult.Success && lowercaseResult.language.languages.isNotEmpty()) {
+                    return lowercaseResult
+                }
+            }
+
+            // Also try language primary tag (e.g. "hi" from "hi-IN")
+            val baseCode = code.split('-', '_').firstOrNull()?.lowercase()
+            if (!baseCode.isNullOrEmpty() && baseCode != code && baseCode != lowercaseCode) {
+                val baseResult = doFetch(baseCode, cachedEtag)
+                if (baseResult is FetchResult.Success && baseResult.language.languages.isNotEmpty()) {
+                    return baseResult
+                }
+            }
+        }
+
+        return primaryResult
+    }
+
+    private suspend fun doFetch(localeCode: String, cachedEtag: String?): FetchResult {
         val endpoint = when (config.fileType) {
             FileType.XML, FileType.STRING -> "${config.effectiveBaseUrl}${KrivanConstants.buildExportPath(config.projectId)}"
             FileType.JSON -> "${config.effectiveBaseUrl}${KrivanConstants.buildTranslationsPath(config.projectId)}"
@@ -71,7 +97,7 @@ internal class KrivanApiClient(
 
         return try {
             val response = httpClient.get(endpoint) {
-                parameter("locale", code)
+                parameter("locale", localeCode)
 
                 when (config.fileType) {
                     FileType.XML -> parameter("format", "android_xml")

@@ -137,4 +137,25 @@ class KrivanProviderTest {
 
         provider.stopLiveOtaSync()
     }
+
+    @Test
+    fun testLanguageLocaleMatchingAndCasing() {
+        // Case-insensitivity and subtag resolution
+        assertEquals(me.meenagopal24.localization.models.enums.Language.HINDI, me.meenagopal24.localization.models.enums.Language.fromCode("hi-IN"))
+        assertEquals(me.meenagopal24.localization.models.enums.Language.HINDI, me.meenagopal24.localization.models.enums.Language.fromCode("hi-in"))
+        assertEquals(me.meenagopal24.localization.models.enums.Language.HINDI, me.meenagopal24.localization.models.enums.Language.fromCode("HI-in"))
+        assertEquals(me.meenagopal24.localization.models.enums.Language.HINDI, me.meenagopal24.localization.models.enums.Language.fromCode("hi"))
+        assertEquals(me.meenagopal24.localization.models.enums.Language.HINDI, me.meenagopal24.localization.models.enums.Language.fromCode("hi_in"))
+
+        // matches() checks
+        assertTrue(me.meenagopal24.localization.models.enums.Language.HINDI.matches("hi-in"))
+        assertTrue(me.meenagopal24.localization.models.enums.Language.HINDI.matches("hi-IN"))
+        assertTrue(me.meenagopal24.localization.models.enums.Language.HINDI.matches("hi_in"))
+        assertTrue(me.meenagopal24.localization.models.enums.Language.HINDI.matches("hi"))
+
+        // lowercaseCode
+        assertEquals("hi-in", me.meenagopal24.localization.models.enums.Language.HINDI.lowercaseCode)
+        assertEquals("mr-in", me.meenagopal24.localization.models.enums.Language.MARATHI.lowercaseCode)
+        assertEquals("en-us", me.meenagopal24.localization.models.enums.Language.ENGLISH_US.lowercaseCode)
+    }
 }

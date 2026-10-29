@@ -105,4 +105,22 @@ enum class Language(
             return fromCode(code) ?: default
         }
     }
+    /**
+     * Lowercase representation of the BCP-47 locale code (e.g., "hi-in", "en-us").
+     */
+    val lowercaseCode: String
+        get() = code.lowercase()
+
+    /**
+     * Checks if this [Language] matches the provided locale code, ignoring case, hyphen/underscore differences,
+     * and matching on primary language tag prefix (e.g. "hi" matching "hi-IN", "hi-in" matching "hi-IN").
+     */
+    fun matches(otherCode: String?): Boolean {
+        if (otherCode.isNullOrBlank()) return false
+        val normalized = otherCode.trim().lowercase().replace('_', '-')
+        val thisNormalized = code.lowercase()
+        return thisNormalized == normalized ||
+                thisNormalized.split('-').first() == normalized ||
+                normalized.split('-').first() == thisNormalized.split('-').first()
+    }
 }
