@@ -8,6 +8,7 @@ internal object KrivanConstants {
     const val QA_BASE_URL = "https://api-qa.krivan.app"
     const val LOCAL_BASE_URL = "http://10.0.2.2:4000"
 
+    const val HEADER_AUTHORIZATION = "Authorization"
     const val HEADER_API_KEY = "X-API-Key"
     const val HEADER_IF_NONE_MATCH = "If-None-Match"
     const val HEADER_ETAG = "ETag"

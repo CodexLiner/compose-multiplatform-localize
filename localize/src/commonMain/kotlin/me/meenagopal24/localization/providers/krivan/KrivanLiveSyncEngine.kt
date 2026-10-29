@@ -58,6 +58,8 @@ internal class KrivanLiveSyncEngine(
                 try {
                     httpClient.prepareGet(streamUrl) {
                         headers {
+                            append(KrivanConstants.HEADER_AUTHORIZATION, "Bearer ${config.apiKey}")
+                            append(KrivanConstants.HEADER_API_KEY, config.apiKey)
                             append(KrivanConstants.HEADER_ACCEPT, "text/event-stream")
                             append(KrivanConstants.HEADER_CACHE_CONTROL, "no-cache")
                         }

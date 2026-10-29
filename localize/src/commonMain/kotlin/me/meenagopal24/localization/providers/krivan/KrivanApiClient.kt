@@ -45,6 +45,7 @@ internal class KrivanApiClient(
         }
         install(DefaultRequest) {
             headers {
+                append(KrivanConstants.HEADER_AUTHORIZATION, "Bearer ${config.apiKey}")
                 append(KrivanConstants.HEADER_API_KEY, config.apiKey)
                 append(KrivanConstants.HEADER_ACCEPT, "application/json, text/xml, */*")
             }
@@ -97,6 +98,8 @@ internal class KrivanApiClient(
 
         return try {
             val response = httpClient.get(endpoint) {
+                header(KrivanConstants.HEADER_AUTHORIZATION, "Bearer ${config.apiKey}")
+                header(KrivanConstants.HEADER_API_KEY, config.apiKey)
                 parameter("locale", localeCode)
 
                 when (config.fileType) {
