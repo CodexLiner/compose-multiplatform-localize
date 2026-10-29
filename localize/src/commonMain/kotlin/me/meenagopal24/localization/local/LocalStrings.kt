@@ -142,6 +142,33 @@ fun localStringResources(localKey: StringResource, vararg formatArgs: Any): Stri
     getLocalizedString(localKey, formatArgs)
 
 /**
+ * Returns a localized string using a raw string key identifier.
+ *
+ * @param key The translation key string.
+ * @return The localized string, or fallback key if not found.
+ */
+@Composable
+fun localStringResources(key: String): String =
+    getOverriddenString(key) { key }
+
+/**
+ * Returns a localized string using a raw string key identifier and applies format arguments.
+ *
+ * @param key The translation key string.
+ * @param formatArgs The arguments used to format the string.
+ * @return The formatted localized string.
+ */
+@Composable
+fun localStringResources(key: String, vararg formatArgs: Any): String {
+    val base = getOverriddenString(key) { key }
+    return if (formatArgs.isNotEmpty()) {
+        base.replaceWithArgs(formatArgs.map { it.toString() })
+    } else {
+        base
+    }
+}
+
+/**
  * Returns a localized string array using an integer resource ID.
  *
  * @param id The resource ID to fetch.
@@ -195,7 +222,7 @@ fun localPluralResources(key: String, count: Int, vararg formatArgs: Any): Strin
  * @param key The localization key to look up.
  * @return The localized string, or `null` if not found.
  */
-internal fun getLocalString(key: String): String? {
+fun getLocalString(key: String): String? {
     return safeGetProvider { provider ->
         provider.localStringsState.value[key.cleanKey]
     }
