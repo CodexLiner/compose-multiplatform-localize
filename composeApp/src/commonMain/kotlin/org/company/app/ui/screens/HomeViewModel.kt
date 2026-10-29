@@ -2,6 +2,8 @@ package org.company.app.ui.screens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kmplocalize.composeapp.generated.resources.Res
+import kmplocalize.composeapp.generated.resources.lb_welcome_message
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +23,7 @@ class HomeViewModel : ViewModel() {
     fun onAddClicked() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            val localizedString = getLocalString("lb_welcome_message") ?: "Welcome"
+            val localizedString = getLocalString(Res.string.lb_welcome_message)
             _uiState.update {
                 it.copy(
                     message = "Selected: $localizedString",
