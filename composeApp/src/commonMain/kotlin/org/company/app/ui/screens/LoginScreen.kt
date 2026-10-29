@@ -25,9 +25,6 @@ import androidx.navigation.NavHostController
 import co.touchlab.kermit.Logger
 import me.meenagopal24.localization.local.Localize
 import me.meenagopal24.localization.local.localStringResources
-import kmplocalize.composeapp.generated.resources.Res
-import kmplocalize.composeapp.generated.resources.ai_description
-import kmplocalize.composeapp.generated.resources.welcome_to_pilloo_ai
 import kotlinx.coroutines.launch
 import org.company.app.ui.components.AppContainer
 
@@ -82,10 +79,10 @@ fun LoginScreen(navController: NavHostController) {
 
             if (localLanguage.isNotEmpty()) {
                 key(forceRenderTrigger.value) {
-                    Text(localStringResources(Res.string.welcome_to_pilloo_ai))
+                    Text(localStringResources("lb_login"))
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = localStringResources(Res.string.ai_description),
+                        text = localStringResources("lb_log_in_to_your_account"),
                         style = MaterialTheme.typography.titleLarge
                     )
                 }

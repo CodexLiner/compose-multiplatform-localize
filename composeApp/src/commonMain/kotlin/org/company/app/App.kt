@@ -21,18 +21,16 @@ import org.company.app.ui.navigation.Screens
 @Composable
 internal fun App() = AppTheme {
     key(Unit) {
-        // Type-safe Language enums matching the Krivan backend definitions
         val providerConfig = ProviderConfig(
             default = Language.ENGLISH_US,
             supported = listOf(Language.ENGLISH_US, Language.HINDI, Language.MARATHI)
         )
 
-        // Initialize with first-party Krivan Provider
         val krivanProvider = KrivanLocalizeLanguageProvider(
             krivanConfig = KrivanConfig(
-                projectId = "51c6efc1-3690-4a0f-b963-0ceaf9124f47",
-                apiKey = "loc_live_teststream1234567890abcdef123456",
-                environment = KrivanEnvironment.LOCAL, // Connects to local dev backend (10.0.2.2:4000)
+                projectId = "602d53f2-3ccd-4da2-83bc-41d0adc10fbf",
+                apiKey = "loc_live_f22057f211205dbfaec4cc1756dcd325ef0adbe135b7ac20",
+                environment = KrivanEnvironment.QA,
                 fileType = FileType.JSON,
                 enableLiveOtaSync = true
             ),

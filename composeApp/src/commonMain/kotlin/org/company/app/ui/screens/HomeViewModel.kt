@@ -2,8 +2,6 @@ package org.company.app.ui.screens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kmplocalize.composeapp.generated.resources.Res
-import kmplocalize.composeapp.generated.resources.welcome_to_pilloo_ai
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,11 +21,10 @@ class HomeViewModel : ViewModel() {
     fun onAddClicked() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            // Using the suspend getLocalString function from localize library inside ViewModel
-            val localizedString = getLocalString(Res.string.welcome_to_pilloo_ai)
+            val localizedString = getLocalString("lb_welcome_message") ?: "Welcome"
             _uiState.update {
                 it.copy(
-                    message = "Added: $localizedString",
+                    message = "Selected: $localizedString",
                     isLoading = false
                 )
             }

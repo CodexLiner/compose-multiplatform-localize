@@ -93,7 +93,7 @@ Localize.init(MyOwnLanguageProvider(providerConfig))
 
 ## 🔌 Custom Language Provider
 
-By default, **Tolgee** is used as the language provider. If you prefer to create a custom provider, you can extend `LocalizeLanguageProvider` to fetch language data in your own way.
+By default, **Tolgee** is used as the language provider. If you prefer to create a custom provider, you can extend `KrivanLocalizeLanguageProvider` to fetch language data in your own way.
 
 ### Using Tolgee (Default Provider)
 
@@ -112,7 +112,7 @@ Localize.init(tolgeeLanguageProvider)
 
 ### Creating Your Own Language Provider
 
-You can also create your own language provider by extending `LocalizeLanguageProvider` and implementing the required methods to fetch languages:
+You can also create your own language provider by extending `KrivanLocalizeLanguageProvider` and implementing the required methods to fetch languages:
 
 ```kotlin
 class MyOwnLanguageProvider(providerConfig: ProviderConfig) : LocalizeLanguageProvider(providerConfig) {
