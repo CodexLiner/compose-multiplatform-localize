@@ -52,7 +52,11 @@ internal class KrivanLiveSyncEngine(
         syncJob = syncScope.launch {
             val eventsParam = config.subscribedEvents.joinToString(",")
             val streamPath = KrivanConstants.buildStreamPath(config.projectId)
-            val streamUrl = "${config.effectiveBaseUrl}$streamPath?apiKey=${config.apiKey}&events=$eventsParam"
+            val streamUrl = if (eventsParam.isNotBlank()) {
+                "${config.effectiveBaseUrl}$streamPath?events=$eventsParam"
+            } else {
+                "${config.effectiveBaseUrl}$streamPath"
+            }
 
             while (isActive && !isPaused) {
                 try {
