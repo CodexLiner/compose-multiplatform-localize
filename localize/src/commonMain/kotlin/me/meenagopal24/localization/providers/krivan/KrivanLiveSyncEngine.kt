@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Encapsulated background subscriber for Krivan's Server-Sent Events (SSE) stream.
@@ -81,7 +82,7 @@ internal class KrivanLiveSyncEngine(
                         val channel = response.bodyAsChannel()
                         var currentEvent: String? = null
 
-                        while (!channel.isClosedForRead && isActive && !isPaused) {
+                        while (!channel.isClosedForRead && this@launch.isActive && !isPaused) {
                             val line = channel.readUTF8Line() ?: break
                             val trimmed = line.trim()
 
@@ -115,7 +116,7 @@ internal class KrivanLiveSyncEngine(
                 val jitter = kotlin.random.Random.nextLong(0, 500)
                 val backoffDelay = (exponentialDelay + jitter).coerceAtMost(30_000L)
 
-                delay(backoffDelay)
+                delay(backoffDelay.milliseconds)
             }
         }
     }
